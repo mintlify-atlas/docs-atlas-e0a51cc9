@@ -1,0 +1,76 @@
+{
+  "projectType": "frontend",
+  "projectName": "KAnki",
+  "projectDescription": "Universal spaced repetition flashcard app for jailbroken Kindle devices",
+  "theme": "palm",
+  "primaryColor": "#2196F3",
+  "lightColor": "#64B5F6",
+  "darkColor": "#1976D2",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Configuration",
+        "pages": [
+          "configuration/language-setup",
+          "configuration/deck-management",
+          "configuration/custom-fonts"
+        ]
+      },
+      {
+        "group": "Features",
+        "pages": [
+          "features/spaced-repetition",
+          "features/level-filtering",
+          "features/starred-cards",
+          "features/reversible-cards",
+          "features/statistics"
+        ]
+      },
+      {
+        "group": "Advanced",
+        "pages": [
+          "advanced/deck-editors",
+          "advanced/data-management",
+          "advanced/anki-conversion",
+          "advanced/technical-limitations"
+        ]
+      },
+      {
+        "group": "Development",
+        "pages": [
+          "development/project-structure",
+          "development/contributing"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Universal language support with custom fonts",
+    "Spaced repetition learning system",
+    "Level-based filtering (JLPT, CEFR, HSK, custom)",
+    "Star/favorite cards system",
+    "Reversible card modes (target↔native)",
+    "Per-card statistics and review history",
+    "Error review mode",
+    "E-ink optimized UI",
+    "Data persistence via localStorage",
+    "Web-based deck editors (Üben, KindleModShelf)"
+  ],
+  "publicApiSurface": [
+    "KANKI_CONFIG.language",
+    "KANKI_CONFIG.levels",
+    "VOCABULARY object structure",
+    "Card format: {front, back, reading, notes}",
+    "localStorage data persistence",
+    "kanki.sh installation script",
+    "kanki_config.js configuration file"
+  ]
+}
