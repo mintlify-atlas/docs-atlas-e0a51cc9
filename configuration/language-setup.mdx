@@ -1,0 +1,201 @@
+---
+title: Language setup
+description: Configure KAnki to support any language with custom vocabulary and proficiency levels
+---
+
+KAnki supports any language through a simple configuration file. You can customize the language name, proficiency levels, and vocabulary to match your learning goals.
+
+## Configuration overview
+
+All language settings are stored in `kanki/js/kanki_config.js`. This file contains two main sections:
+
+- **KANKI_CONFIG**: Language name and proficiency levels
+- **VOCABULARY**: Flashcard data organized by level
+
+## Basic configuration
+
+<Steps>
+  <Step title="Open the configuration file">
+    Navigate to `kanki/js/kanki_config.js` on your Kindle filesystem.
+  </Step>
+
+  <Step title="Set your language">
+    Update the `KANKI_CONFIG` object with your target language and proficiency levels:
+
+    ```javascript kanki_config.js
+    var KANKI_CONFIG = {
+      language: "Spanish",  // Change this to your language name
+      levels: ["A1", "A2", "B1"]   // These should match the keys in your VOCABULARY object
+    };
+    ```
+  </Step>
+
+  <Step title="Add your vocabulary">
+    Define your flashcard data in the `VOCABULARY` object. Each level should contain an array of card objects.
+  </Step>
+</Steps>
+
+## Language examples
+
+<Tabs>
+  <Tab title="Japanese (JLPT)">
+    ```javascript kanki_config.js
+    var KANKI_CONFIG = {
+      language: "Japanese",
+      levels: ["N5", "N4"]
+    };
+
+    var VOCABULARY = {
+      "N5": [
+        {"front": "こんにちは", "back": "Hello", "notes": "Greeting"},
+        {"front": "ありがとう", "back": "Thank you", "notes": "Gratitude"},
+        {"front": "水", "reading": "みず", "back": "Water", "notes": "Noun"},
+        {"front": "本", "reading": "ほん", "back": "Book", "notes": "Noun"}
+      ],
+      "N4": [
+        {"front": "急ぐ", "reading": "いそぐ", "back": "To hurry", "notes": "Verb"},
+        {"front": "必要", "reading": "ひつよう", "back": "Necessary", "notes": "Na-Adjective"}
+      ]
+    };
+    ```
+  </Tab>
+
+  <Tab title="Spanish (CEFR)">
+    ```javascript kanki_config.js
+    var KANKI_CONFIG = {
+      language: "Spanish",
+      levels: ["A1", "A2", "B1"]
+    };
+
+    var VOCABULARY = {
+      "A1": [
+        {"front": "hello", "back": "hola", "notes": "Greeting"},
+        {"front": "tomorrow", "back": "mañana", "notes": "Time"},
+        {"front": "water", "back": "agua", "notes": "Noun"},
+        {"front": "book", "back": "libro", "notes": "Noun"}
+      ],
+      "A2": [
+        {"front": "to hurry", "back": "apurarse", "notes": "Verb"},
+        {"front": "necessary", "back": "necesario", "notes": "Adjective"}
+      ]
+    };
+    ```
+  </Tab>
+
+  <Tab title="Chinese (HSK)">
+    ```javascript kanki_config.js
+    var KANKI_CONFIG = {
+      language: "Chinese",
+      levels: ["HSK1", "HSK2"]
+    };
+
+    var VOCABULARY = {
+      "HSK1": [
+        {"front": "你好", "reading": "nǐ hǎo", "back": "Hello", "notes": "Greeting"},
+        {"front": "谢谢", "reading": "xiè xie", "back": "Thank you", "notes": "Gratitude"},
+        {"front": "水", "reading": "shuǐ", "back": "Water", "notes": "Noun"}
+      ],
+      "HSK2": [
+        {"front": "开始", "reading": "kāi shǐ", "back": "To begin", "notes": "Verb"},
+        {"front": "准备", "reading": "zhǔn bèi", "back": "To prepare", "notes": "Verb"}
+      ]
+    };
+    ```
+  </Tab>
+
+  <Tab title="Custom levels">
+    ```javascript kanki_config.js
+    var KANKI_CONFIG = {
+      language: "French",
+      levels: ["Beginner", "Intermediate", "Advanced"]
+    };
+
+    var VOCABULARY = {
+      "Beginner": [
+        {"front": "hello", "back": "bonjour", "notes": "Greeting"},
+        {"front": "goodbye", "back": "au revoir", "notes": "Parting"}
+      ],
+      "Intermediate": [
+        {"front": "perhaps", "back": "peut-être", "notes": "Adverb"},
+        {"front": "to understand", "back": "comprendre", "notes": "Verb"}
+      ]
+    };
+    ```
+  </Tab>
+</Tabs>
+
+## Card properties
+
+Each flashcard supports the following properties:
+
+### Required properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `front` | string | The word or phrase in the target language |
+| `back` | string | The translation or definition |
+
+### Optional properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `reading` | string | Pronunciation guide (e.g., romanization for Japanese/Chinese) |
+| `notes` | string | Additional context (word type, usage notes, etc.) |
+
+<Note>
+The `reading` property is especially useful for languages with non-alphabetic writing systems like Japanese, Chinese, Korean, or Arabic.
+</Note>
+
+## Using the reading property
+
+For languages with complex writing systems, add a `reading` field to help with pronunciation:
+
+<CodeGroup>
+```javascript Japanese example
+{"front": "食べる", "reading": "たべる", "back": "To eat", "notes": "Verb"}
+```
+
+```javascript Chinese example
+{"front": "你好", "reading": "nǐ hǎo", "back": "Hello", "notes": "Greeting"}
+```
+
+```javascript Korean example
+{"front": "안녕하세요", "reading": "annyeonghaseyo", "back": "Hello", "notes": "Formal greeting"}
+```
+</CodeGroup>
+
+## Proficiency level systems
+
+Choose a proficiency level system that matches your learning materials:
+
+| System | Levels | Best for |
+|--------|--------|----------|
+| JLPT | N5, N4, N3, N2, N1 | Japanese |
+| CEFR | A1, A2, B1, B2, C1, C2 | European languages |
+| HSK | HSK1, HSK2, HSK3, HSK4, HSK5, HSK6 | Chinese |
+| Custom | Any labels | Any language |
+
+<Warning>
+The level names in `KANKI_CONFIG.levels` must exactly match the keys in your `VOCABULARY` object. Mismatched names will cause cards not to appear.
+</Warning>
+
+## Validation checklist
+
+Before transferring your configuration to Kindle:
+
+- [ ] Language name is set in `KANKI_CONFIG.language`
+- [ ] All level names in `KANKI_CONFIG.levels` match keys in `VOCABULARY`
+- [ ] Each card has both `front` and `back` properties
+- [ ] Cards for non-alphabetic languages include `reading` property
+- [ ] JavaScript syntax is valid (check commas, brackets, quotes)
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Deck management" icon="layer-group" href="/configuration/deck-management">
+    Learn how to organize and structure your vocabulary decks
+  </Card>
+  <Card title="Custom fonts" icon="font" href="/configuration/custom-fonts">
+    Install fonts that support your target language characters
+  </Card>
+</CardGroup>

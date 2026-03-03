@@ -1,0 +1,172 @@
+---
+title: Reversible cards
+description: Switch between target→native and native→target language modes
+---
+
+KAnki's reversible cards feature allows you to practice vocabulary in both directions: from target language to native language, and from native language to target language. This bidirectional practice improves both recognition and production skills.
+
+## How it works
+
+By default, KAnki displays cards with the target language (the language you're learning) on the front and your native language on the back. When you activate reversed mode:
+
+- The native language appears on the front
+- The target language appears on the back
+- All cards in your current session are reversed
+- Your mode preference is saved between sessions
+
+## Toggling card direction
+
+To switch between modes, select the **Reverse Cards** option from the app menu. The toggle button becomes highlighted when reversed mode is active.
+
+From main.js:1351:
+
+```javascript
+function toggleCardDirection() {
+  isReversedMode = !isReversedMode;
+  currentCardIndex = 0;
+  
+  updateDirectionDisplay();
+  displayCurrentCard(false);
+  saveDeck();
+  
+  showToast(
+    isReversedMode ? "Flip: Native → Target" : "Flip: Target → Native",
+    1500
+  );
+}
+```
+
+<Note>
+When you switch modes, the card counter resets to 0 and your position in the deck restarts. This prevents confusion when the card content suddenly changes.
+</Note>
+
+## Display logic
+
+The card display function checks the `isReversedMode` flag to determine which content to show:
+
+From main.js:507:
+
+```javascript
+if (isReversedMode) {
+  frontElement.innerHTML = card.back;
+  backElement.textContent = card.front;
+} else {
+  frontElement.innerHTML = card.front;
+  backElement.textContent = card.back;
+}
+```
+
+## Mode indicator
+
+The level display at the top of the screen shows your current card direction:
+
+```
+N5 • Target→Native    (Normal mode)
+N5 • Native→Target    (Reversed mode)
+```
+
+This indicator updates automatically when you toggle the mode, helping you stay aware of which direction you're practicing.
+
+<Tip>
+The direction indicator works alongside other filters. For example: `N5 ★ • Native→Target` means you're viewing N5 starred cards in reversed mode.
+</Tip>
+
+## Why use reversed cards
+
+Practicing in both directions develops different language skills:
+
+<CardGroup cols={2}>
+  <Card title="Target→Native (Default)" icon="eye">
+    **Recognition skill**: Understanding when you see or hear the target language
+    
+    Useful for: Reading, listening comprehension, understanding conversations
+  </Card>
+  <Card title="Native→Target (Reversed)" icon="comment">
+    **Production skill**: Actively recalling and producing the target language
+    
+    Useful for: Speaking, writing, active conversation
+  </Card>
+</CardGroup>
+
+## Example: Japanese study
+
+### Default mode (Target→Native)
+**Front**: こんにちは (konnichiwa)  
+**Back**: Hello
+
+*You practice recognizing Japanese words and understanding their meaning.*
+
+### Reversed mode (Native→Target)
+**Front**: Hello  
+**Back**: こんにちは (konnichiwa)
+
+*You practice producing Japanese words from English prompts.*
+
+<Info>
+Many language learners find reversed mode significantly more challenging because production (recall) is harder than recognition. This is normal and indicates you're working on a deeper level of mastery.
+</Info>
+
+## Reversed mode with readings
+
+For cards with pronunciation guides (the `reading` field), the display adapts intelligently:
+
+Normal card structure:
+```javascript
+{"front": "水", "reading": "みず", "back": "Water", "notes": "Noun"}
+```
+
+From main.js:203:
+```javascript
+var displayText = front;
+if (reading) {
+  displayText = front + " (" + reading + ")";
+}
+```
+
+In normal mode, the front shows: **水 (みず)**  
+In reversed mode, the front shows: **Water**
+
+The reading is automatically included in the target language display but not in the native language display.
+
+## Spaced repetition behavior
+
+Important: Reversed mode does **not** create separate scheduling for each direction. The same card is used regardless of mode, with the same:
+
+- Difficulty level
+- Next review date
+- Review history
+- Statistics
+
+This means:
+- Reviewing a card in reversed mode advances its spaced repetition schedule
+- Both directions share the same difficulty progression
+- You can switch modes mid-session without affecting scheduling
+
+<Note>
+If you want separate spaced repetition schedules for each direction, you would need to create separate card entries in your vocabulary configuration.
+</Note>
+
+## Persistence
+
+Your mode preference is saved to localStorage along with your deck data. When you reload the app, KAnki restores your last selected mode.
+
+From main.js:1367:
+```javascript
+saveDeck();  // Saves isReversedMode state
+```
+
+The mode state is loaded on app initialization at main.js:894:
+```javascript
+if (reverseToggleBtn && isReversedMode) {
+  reverseToggleBtn.classList.add("active");
+}
+```
+
+## Combined with other features
+
+Reversed mode works seamlessly with all other KAnki features:
+
+- **Level filtering**: Reverse cards from specific proficiency levels
+- **Starred cards**: Practice starred vocabulary in both directions
+- **Error review**: Review mistakes in either direction
+- **Statistics**: View counts apply regardless of card direction

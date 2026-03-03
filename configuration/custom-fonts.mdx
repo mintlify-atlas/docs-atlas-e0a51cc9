@@ -1,0 +1,332 @@
+---
+title: Custom fonts
+description: Install and configure language-specific fonts for proper character rendering in KAnki
+---
+
+KAnki requires custom fonts to properly display characters from different writing systems. This guide shows you how to install and configure fonts for your target language.
+
+## Why custom fonts are needed
+
+Kindle devices have limited built-in font support. For languages with non-Latin scripts (Japanese, Chinese, Korean, Arabic, etc.), you must install a custom font that includes the necessary character sets.
+
+## Font requirements
+
+Your font file must meet these requirements:
+
+- **Format**: TrueType Font (`.ttf`)
+- **Character coverage**: Must include all characters in your vocabulary
+- **File name**: Must be named exactly `language.ttf`
+- **Location**: `kanki/assets/fonts/language.ttf`
+
+<Warning>
+The font filename must be exactly `language.ttf` (lowercase). KAnki looks for this specific filename and will not work with other names.
+</Warning>
+
+## Installing a font
+
+<Steps>
+  <Step title="Find or download a font">
+    Choose a TrueType font that supports your target language's character set.
+
+    ### Recommended sources
+    - [Google Fonts](https://fonts.google.com/) - Free, open-source fonts
+    - [Adobe Fonts](https://fonts.adobe.com/) - Professional fonts (requires subscription)
+    - [Font Squirrel](https://www.fontsquirrel.com/) - Free commercial-use fonts
+    - Language-specific repositories (see examples below)
+  </Step>
+
+  <Step title="Rename the font file">
+    Rename your downloaded font file to exactly `language.ttf`:
+
+    ```bash Terminal
+    mv NotoSansJP-Regular.ttf language.ttf
+    ```
+  </Step>
+
+  <Step title="Connect your Kindle">
+    Connect your Kindle to your computer via USB cable.
+  </Step>
+
+  <Step title="Copy to Kindle">
+    Navigate to the KAnki fonts directory and copy your font:
+
+    ```
+    Kindle/documents/kanki/assets/fonts/language.ttf
+    ```
+
+    Replace any existing `language.ttf` file.
+  </Step>
+
+  <Step title="Disconnect and test">
+    Safely eject your Kindle and launch KAnki to verify the font displays correctly.
+  </Step>
+</Steps>
+
+## Recommended fonts by language
+
+<Tabs>
+  <Tab title="Japanese">
+    ### Noto Sans JP (Recommended)
+    - **Source**: [Google Fonts](https://fonts.google.com/noto/specimen/Noto+Sans+JP)
+    - **Coverage**: Complete hiragana, katakana, and kanji
+    - **Style**: Clean, readable sans-serif
+    - **File size**: ~5-8 MB (depending on weight)
+
+    ### Alternatives
+    - **Noto Serif JP**: Serif style for traditional appearance
+    - **M PLUS 1p**: Open-source Japanese Gothic font
+    - **Sawarabi Gothic**: Lightweight option
+
+    ### Download and install
+    ```bash Terminal
+    # Download from Google Fonts, then:
+    mv NotoSansJP-Regular.ttf language.ttf
+    ```
+  </Tab>
+
+  <Tab title="Chinese (Simplified)">
+    ### Noto Sans SC (Recommended)
+    - **Source**: [Google Fonts](https://fonts.google.com/noto/specimen/Noto+Sans+SC)
+    - **Coverage**: Simplified Chinese characters
+    - **Style**: Sans-serif, optimized for screen reading
+    - **File size**: ~10-15 MB
+
+    ### Alternatives
+    - **Source Han Sans CN**: Adobe's open-source font
+    - **WenQuanYi Zen Hei**: Free Chinese font
+
+    ```bash Terminal
+    mv NotoSansSC-Regular.ttf language.ttf
+    ```
+  </Tab>
+
+  <Tab title="Chinese (Traditional)">
+    ### Noto Sans TC (Recommended)
+    - **Source**: [Google Fonts](https://fonts.google.com/noto/specimen/Noto+Sans+TC)
+    - **Coverage**: Traditional Chinese characters
+    - **Style**: Sans-serif
+    - **File size**: ~10-15 MB
+
+    ### Alternatives
+    - **Source Han Sans TW**: Traditional Chinese variant
+    - **Noto Serif TC**: Serif option
+
+    ```bash Terminal
+    mv NotoSansTC-Regular.ttf language.ttf
+    ```
+  </Tab>
+
+  <Tab title="Korean">
+    ### Noto Sans KR (Recommended)
+    - **Source**: [Google Fonts](https://fonts.google.com/noto/specimen/Noto+Sans+KR)
+    - **Coverage**: Complete Hangul and Hanja
+    - **Style**: Modern sans-serif
+    - **File size**: ~5-8 MB
+
+    ### Alternatives
+    - **Nanum Gothic**: Popular Korean font
+    - **Source Han Sans K**: Adobe's Korean font
+
+    ```bash Terminal
+    mv NotoSansKR-Regular.ttf language.ttf
+    ```
+  </Tab>
+
+  <Tab title="Arabic">
+    ### Noto Sans Arabic (Recommended)
+    - **Source**: [Google Fonts](https://fonts.google.com/noto/specimen/Noto+Sans+Arabic)
+    - **Coverage**: Complete Arabic script
+    - **Style**: Sans-serif with proper RTL support
+    - **File size**: ~2-4 MB
+
+    ### Alternatives
+    - **Amiri**: Traditional Arabic font
+    - **Cairo**: Modern geometric Arabic
+
+    ```bash Terminal
+    mv NotoSansArabic-Regular.ttf language.ttf
+    ```
+  </Tab>
+
+  <Tab title="Other languages">
+    ### European languages with diacritics
+    Most Latin-based languages (Spanish, French, German, etc.) work with Kindle's built-in fonts, but you can install custom fonts for better appearance:
+
+    - **Noto Sans**: Universal coverage
+    - **Open Sans**: Clean, modern sans-serif
+    - **Roboto**: Google's readable font
+
+    ### Cyrillic (Russian, Ukrainian, etc.)
+    - **Noto Sans**: Includes Cyrillic
+    - **PT Sans**: Open-source Cyrillic font
+
+    ### Thai
+    - **Noto Sans Thai**: Complete Thai script
+    - **Sarabun**: Modern Thai font
+
+    ### Hebrew
+    - **Noto Sans Hebrew**: Full Hebrew coverage
+    - **Open Sans Hebrew**: Clean sans-serif option
+  </Tab>
+</Tabs>
+
+## Converting fonts to TTF
+
+If you have a font in a different format (`.otf`, `.woff`, etc.), convert it to `.ttf`:
+
+### Using online converters
+
+1. Visit [CloudConvert](https://cloudconvert.com/otf-to-ttf) or [OnlineConvert](https://www.onlineconvert.com/)
+2. Upload your font file
+3. Select TTF as output format
+4. Download the converted file
+5. Rename to `language.ttf`
+
+### Using FontForge (advanced)
+
+```bash Terminal
+# Install FontForge
+sudo apt-get install fontforge  # Linux
+brew install fontforge          # macOS
+
+# Convert font
+fontforge -lang=ff -c 'Open($1); Generate($2)' input.otf language.ttf
+```
+
+<Note>
+TTF files are preferred over OTF because they have better compatibility with Kindle's older browser engine.
+</Note>
+
+## Font file size considerations
+
+Larger font files may slow down KAnki on older Kindle devices:
+
+| Language | Typical file size | Notes |
+|----------|-------------------|-------|
+| Japanese | 5-15 MB | Large due to kanji coverage |
+| Chinese | 10-20 MB | Largest due to character count |
+| Korean | 5-10 MB | Moderate size |
+| Arabic | 2-5 MB | Smaller with RTL support |
+| European | 1-3 MB | Smallest files |
+
+### Optimizing large fonts
+
+If your font file is too large:
+
+1. **Use a lighter weight**: Choose "Regular" or "Light" instead of "Bold"
+2. **Subset the font**: Include only characters you need (advanced)
+3. **Choose a simpler font**: Some fonts have smaller file sizes
+
+## Verifying font installation
+
+<Steps>
+  <Step title="Launch KAnki">
+    Open KAnki on your Kindle after installing the font.
+  </Step>
+
+  <Step title="Load a card">
+    Navigate to a deck and start a study session.
+  </Step>
+
+  <Step title="Check character rendering">
+    Verify that:
+    - All characters display correctly (no boxes or missing glyphs)
+    - Text is readable and properly sized
+    - Special characters and diacritics appear correctly
+  </Step>
+</Steps>
+
+### Troubleshooting display issues
+
+If characters don't display correctly:
+
+<CodeGroup>
+```text Missing characters (boxes)
+❌ Font doesn't include required character set
+✅ Download a font with complete coverage for your language
+```
+
+```text Incorrect filename
+❌ Font is named NotoSansJP.ttf or my-font.ttf
+✅ Must be exactly language.ttf (lowercase)
+```
+
+```text Wrong location
+❌ Font is in kanki/fonts/ or kanki/assets/
+✅ Must be in kanki/assets/fonts/language.ttf
+```
+
+```text Wrong format
+❌ Font is .otf, .woff, or .woff2
+✅ Must be .ttf format
+```
+</CodeGroup>
+
+## Multiple language support
+
+<Warning>
+KAnki uses a single font file for all languages. You cannot use different fonts for different decks.
+</Warning>
+
+If you study multiple languages with different scripts:
+
+### Option 1: Use a multi-script font
+
+Choose a font family that covers multiple scripts:
+
+- **Noto Sans**: Includes variants for most world scripts
+- **Arial Unicode MS**: Wide character coverage (if available)
+
+### Option 2: Switch fonts when changing languages
+
+Manually replace `language.ttf` when switching between languages:
+
+1. Keep multiple font files on your computer (e.g., `japanese.ttf`, `chinese.ttf`)
+2. Rename the appropriate one to `language.ttf` when transferring
+3. Replace the file on your Kindle
+
+### Option 3: Use Noto Sans CJK
+
+For studying Japanese, Chinese, and Korean simultaneously:
+
+```bash Terminal
+# Download Noto Sans CJK (covers all three languages)
+mv NotoSansCJK-Regular.ttf language.ttf
+```
+
+<Note>
+Noto Sans CJK files are very large (15-25 MB). This may impact performance on older Kindle devices.
+</Note>
+
+## Font licensing
+
+Ensure your chosen font allows personal use:
+
+- **Open source fonts** (Noto, Open Sans): Free for any use
+- **Commercial fonts**: Check license terms
+- **Google Fonts**: All fonts are open source and free
+
+<Warning>
+Do not distribute font files with your KAnki configuration unless you own the rights or the font is open source.
+</Warning>
+
+## Testing before full installation
+
+Before creating a large vocabulary deck:
+
+1. Install your chosen font
+2. Create a small test deck with 5-10 sample cards
+3. Verify all characters render correctly
+4. Test with the most complex characters in your vocabulary
+5. Check readability on your specific Kindle model
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Language setup" icon="language" href="/configuration/language-setup">
+    Configure vocabulary and proficiency levels
+  </Card>
+  <Card title="Deck management" icon="layer-group" href="/configuration/deck-management">
+    Organize your flashcard decks
+  </Card>
+</CardGroup>

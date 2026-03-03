@@ -1,0 +1,304 @@
+---
+title: Contributing
+description: How to contribute to KAnki and technical constraints to keep in mind
+---
+
+KAnki is an open-source project built for a unique and constrained environment. Contributions are welcome, but must work within Kindle's technical limitations.
+
+## Before you start
+
+<Note>
+Join the [Discord community](https://discord.gg/JtcrpG7ECA) to discuss ideas, ask questions, and coordinate development efforts.
+</Note>
+
+### Technical constraints
+
+KAnki runs on jailbroken Kindle devices with **very limited** browser capabilities:
+
+<Warning>
+**ES5 JavaScript only**
+
+No support for:
+- ES6+ syntax (arrow functions, template literals, destructuring)
+- `const` or `let` (use `var` only)
+- `fetch`, `async`/`await`, or Promises (except polyfilled)
+- Modern array methods without polyfills
+- Classes or modules
+
+All JavaScript must be ES5-compatible.
+</Warning>
+
+<Warning>
+**Limited CSS**
+
+No support for:
+- Flexbox or CSS Grid
+- CSS variables (`--custom-property`)
+- `calc()` in most cases
+- CSS animations (e-ink doesn't support them well)
+- Media queries (limited support)
+
+Use table layouts, inline-block, and absolute positioning instead.
+</Warning>
+
+<Warning>
+**E-ink display considerations**
+
+- Minimize screen refreshes (ghosting and flicker)
+- Use fixed element heights to prevent reflows
+- Avoid animations and transitions
+- Update DOM elements instead of recreating them
+- Use `display: none` for hiding, not removal
+</Warning>
+
+### Development environment
+
+You'll need:
+
+1. **A jailbroken Kindle device** for testing
+   - Kindle Paperwhite, Oasis, or Scribe recommended
+   - Basic, Touch, or Voyage also supported
+
+2. **Access to Kindle filesystem** via:
+   - USB connection
+   - SSH (if configured)
+
+3. **Text editor** with ES5 linting configured
+
+4. **Git** for version control
+
+<Info>
+You can develop on any OS, but final testing must be done on actual Kindle hardware. Desktop browsers don't accurately simulate Kindle's WebKit engine.
+</Info>
+
+## Development workflow
+
+### 1. Set up the repository
+
+Clone the KAnki repository:
+
+```bash
+git clone https://github.com/yourusername/KAnki.git
+cd KAnki
+```
+
+The repository structure:
+```
+KAnki/
+├── kanki/           # Main application files
+├── kanki.sh         # Installation script
+└── README.md        # Project documentation
+```
+
+### 2. Make your changes
+
+Edit files in the `kanki/` directory:
+
+- **UI changes**: Edit `index.html`, `main.css`, or `responsive.css`
+- **Logic changes**: Edit `main.js`
+- **SDK additions**: Edit `js/sdk.js`
+- **Config format**: Edit `js/kanki_config.js`
+
+<Accordion title="Code style guidelines">
+**JavaScript:**
+- Use ES5 syntax only
+- Use semicolons
+- Use `var` for all variables
+- Use `function` keyword for all functions
+- Add comments for complex logic
+- Keep functions under 50 lines when possible
+
+**CSS:**
+- Use kebab-case for class names
+- Avoid deep nesting (max 3 levels)
+- Use pixel values, not rem/em (font scaling is done via device detection)
+- Comment responsive breakpoints
+
+**HTML:**
+- Use semantic HTML5 tags
+- Keep structure flat to minimize reflows
+- Add `id` attributes for JavaScript access
+</Accordion>
+
+### 3. Test on Kindle
+
+<Note>
+Desktop browser testing is useful for basic functionality, but **Kindle hardware testing is mandatory** before submitting changes.
+</Note>
+
+**Testing steps:**
+
+1. Connect your Kindle via USB
+2. Copy the modified `kanki/` folder to `/mnt/us/documents/`
+3. Copy `kanki.sh` to `/mnt/us/documents/`
+4. Safely eject Kindle
+5. On Kindle home screen, run the KAnki app
+6. Test all modified features
+7. Check multiple device sizes if possible
+
+**Common test scenarios:**
+
+- Create new cards and review them
+- Test spaced repetition intervals
+- Try error review mode
+- Test starred cards feature
+- Change levels and filters
+- Reset progress and reset all data
+- Verify localStorage persistence (restart app)
+- Test with different vocabulary configurations
+
+### 4. Debug on Kindle
+
+Kindle's browser doesn't have developer tools. Debugging techniques:
+
+**Console logging:**
+```javascript
+function log(logStuff) {
+  var logElement = document.getElementById("log");
+  if (logElement) {
+    logElement.innerHTML += "<p>" + logStuff + "</p>";
+  }
+  console.log(logStuff);
+}
+```
+
+Then in `index.html`, change:
+```html
+<div id="log" style="display:none;"></div>
+```
+to:
+```html
+<div id="log" style="display:block;"></div>
+```
+
+**LocalStorage inspection:**
+```javascript
+// View saved deck
+var savedDeck = localStorage.getItem('kanki_deck');
+log(JSON.stringify(JSON.parse(savedDeck), null, 2));
+```
+
+**Error handling:**
+```javascript
+try {
+  // Your code
+} catch (e) {
+  log("Error: " + e.message);
+  log("Stack: " + e.stack);
+}
+```
+
+## Submitting contributions
+
+### Pull request process
+
+1. **Fork the repository** on GitHub
+
+2. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make your changes** following the guidelines above
+
+4. **Test thoroughly** on Kindle hardware
+
+5. **Commit with clear messages**:
+   ```bash
+   git add .
+   git commit -m "Add feature: description of what you added"
+   ```
+
+6. **Push to your fork**:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+7. **Open a pull request** on GitHub with:
+   - Clear description of changes
+   - Why the change is needed
+   - Which Kindle devices you tested on
+   - Screenshots if UI changed
+
+<Warning>
+Pull requests that don't follow ES5 syntax or haven't been tested on Kindle hardware will be rejected.
+</Warning>
+
+### Commit message format
+
+Use clear, descriptive commit messages:
+
+```
+Add starred cards filter to main menu
+
+Fix layout overflow on Paperwhite 3
+
+Update spaced repetition algorithm for better intervals
+
+Refactor card display logic to reduce DOM manipulation
+```
+
+Avoid vague messages like "fix bug" or "update code".
+
+## Feature development guidelines
+
+### Adding new features
+
+When proposing new features:
+
+1. **Check compatibility**: Will it work with ES5 and limited CSS?
+2. **Consider e-ink**: Will it cause excessive refreshes?
+3. **Test on multiple devices**: Different screen sizes behave differently
+4. **Update configuration**: Does `kanki_config.js` need changes?
+5. **Maintain backwards compatibility**: Don't break existing decks
+
+### Performance considerations
+
+<Info>
+Kindle processors are slow. Optimize for performance:
+- Minimize DOM manipulation
+- Cache DOM queries in variables
+- Use simple selectors (`getElementById` over `querySelector`)
+- Avoid complex calculations in loops
+- Debounce resize and scroll events
+</Info>
+
+### Accessibility
+
+Even on Kindle:
+- Use semantic HTML
+- Provide text alternatives for icons
+- Ensure touch targets are at least 40×40px
+- Test with Kindle's zoom feature
+
+## Community
+
+### Discord server
+
+Join the [KAnki Discord community](https://discord.gg/JtcrpG7ECA) for:
+- Development discussions
+- Feature proposals
+- Bug reports
+- Help with testing
+- Sharing vocabulary configurations
+
+### Acknowledgments
+
+KAnki is maintained by **Kurizu** with help from:
+- **PolishPenguin** - Development assistance
+- **Bluebotlaboratories** - Kindle SDK functions
+- The jailbreak community - Making Kindle development possible
+
+<Note>
+Special thanks to the Anki project for spaced repetition inspiration and the Kindle modding community for tools and documentation.
+</Note>
+
+## Support the project
+
+If you'd like to support KAnki development:
+- Contribute code and bug fixes
+- Test on different Kindle devices
+- Share vocabulary configurations
+- Report issues on GitHub
+- Help other users on Discord
+- [Support on Ko-fi](https://ko-fi.com/kurizu)

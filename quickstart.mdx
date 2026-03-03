@@ -1,80 +1,271 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick start
+description: Get your first KAnki flashcard deck running in minutes
 ---
 
-## Get started in three steps
+# Quick start
 
-Get your documentation site running locally and make your first customization.
+This guide will get you started with KAnki by walking through your first flashcard study session.
 
-### Step 1: Set up your local environment
+<Note>
+This guide assumes you've already [installed KAnki](/installation) on your jailbroken Kindle device. If you haven't installed KAnki yet, complete the installation first.
+</Note>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+## Understanding the interface
+
+When you launch KAnki, you'll see:
+
+### Header bar
+
+- **KAnki logo** - App title in the top left
+- **Progress display** - Shows current card number and total cards (e.g., "5/50")
+- **Level display** - Shows the currently selected proficiency level
+
+### Menu bar
+
+- **Level buttons** - Filter cards by proficiency level (All Levels, N5, N4, etc.)
+- **★ Star button** - Filter to show only starred (favorited) cards
+- **↔ Flip button** - Reverse card direction (swap front and back)
+
+### Card area
+
+- **Level badge** - Shows the card's proficiency level
+- **Star button (☆)** - Click to mark/unmark the card as starred
+- **Front text** - The question or prompt
+- **Back text** - The answer (hidden until you click Show Answer)
+- **Notes** - Additional context or hints
+- **Statistics** - View count and review history
+
+### Control buttons
+
+- **Show Answer** - Reveals the answer and interval buttons
+- **Again** (&lt;10m) - Didn't know it, review in 10 minutes
+- **Hard** (1d) - Knew it with difficulty, review in 1 day
+- **Good** (3d) - Knew it well, review in 3 days
+- **Easy** (4d) - Knew it perfectly, review in 4 days
+
+## Your first study session
+
+<Steps>
+  <Step title="Launch KAnki">
+    Open KAnki from your Kindle's home screen. You'll see your first flashcard.
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    <Info>
+    If this is your first time launching KAnki, you'll see the default Japanese vocabulary deck. Don't worry - you can customize this for any language later.
+    </Info>
+  </Step>
+
+  <Step title="Read the front of the card">
+    The card front displays the question or prompt. For language learning, this is typically:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    - The word in your target language (learning mode)
+    - The word in your native language (reverse mode)
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    Example: `こんにちは` (Japanese)
+    
+    Try to recall the answer before revealing it.
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Show the answer">
+    Click the **Show Answer** button to reveal the back of the card.
+    
+    You'll see:
+    - The answer text (e.g., "Hello")
+    - Reading/pronunciation if available (e.g., "konnichiwa")
+    - Notes or context (e.g., "Greeting")
+    - View statistics (how many times you've seen this card)
+    
+    Four interval buttons will appear at the bottom.
+  </Step>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Rate your recall">
+    Choose how well you knew the answer:
+    
+    <CardGroup cols={2}>
+      <Card title="Again (<10m)" icon="xmark">
+        You didn't know the answer or got it completely wrong. The card will reappear in less than 10 minutes.
+      </Card>
+      <Card title="Hard (1d)" icon="face-frown">
+        You knew it but struggled or hesitated significantly. The card will reappear in 1 day.
+      </Card>
+      <Card title="Good (3d)" icon="face-smile">
+        You knew the answer with reasonable confidence. The card will reappear in 3 days.
+      </Card>
+      <Card title="Easy (4d)" icon="face-laugh">
+        You knew the answer instantly and perfectly. The card will reappear in 4 days.
+      </Card>
+    </CardGroup>
+    
+    Click the appropriate button. The next card will appear automatically.
+  </Step>
 
-### Step 3: Go live
+  <Step title="Continue studying">
+    Repeat steps 2-4 for each card in your deck. Your progress is automatically saved after each card.
+    
+    <Note>
+    KAnki uses localStorage to save your progress. You can safely close the app and continue later without losing your study history.
+    </Note>
+  </Step>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+  <Step title="Review incorrect answers">
+    After completing your session, if you answered any cards incorrectly (clicked "Again"), KAnki will offer an **error review mode** to practice those difficult cards immediately.
+    
+    This helps reinforce challenging vocabulary before moving on.
+  </Step>
+</Steps>
+
+## Understanding spaced repetition
+
+KAnki uses a spaced repetition algorithm to optimize your learning:
+
+- **Cards you know well** appear less frequently (up to 4 days between reviews)
+- **Cards you struggle with** appear more frequently (as soon as 10 minutes later)
+- **Review timing** is based on your self-assessment (Again, Hard, Good, Easy)
+
+This ensures you spend more time on difficult material and less time on words you already know.
+
+## Filtering and customization
+
+### Filter by proficiency level
+
+Click any level button in the menu bar to study only cards from that level:
+
+```
+[All Levels] [N5] [N4] [N3] [N2] [N1]
+```
+
+For example, click **N5** to study only beginner vocabulary.
+
+### Star important cards
+
+Click the **☆** button on any card to mark it as starred (important). Starred cards get a filled star: **★**
+
+Click the **★ Star** button in the menu bar to filter and show only your starred cards.
+
+<Info>
+Starring is perfect for:
+- Words you want to review extra
+- Cards you keep getting wrong
+- High-frequency vocabulary you need to master
+</Info>
+
+### Reverse card direction
+
+Click the **↔ Flip** button to reverse the learning direction:
+
+- **Normal mode:** Target language → Native language (e.g., Japanese → English)
+- **Reverse mode:** Native language → Target language (e.g., English → Japanese)
+
+Reverse mode helps you practice active recall and production of vocabulary.
+
+## Card statistics
+
+Each card tracks:
+
+- **Total views** - How many times you've seen this card
+- **Review history** - Timestamps of your recent reviews
+
+This helps you understand which cards you've studied most and identify problem areas.
+
+## Resetting progress
+
+If you want to start over or clear your data:
+
+- **Reset Progress** - Clears all study statistics but keeps your deck
+- **Reset All Data** - Returns to default deck and clears all progress
+
+<Warning>
+Reset operations cannot be undone. Your study history will be permanently deleted.
+</Warning>
+
+## Common study workflows
+
+### Daily review routine
+
+<Steps>
+  <Step title="Review due cards">
+    Launch KAnki and study all cards that are due for review based on your previous ratings.
+  </Step>
+  <Step title="Add new cards">
+    If you finish all due cards, KAnki will show new unseen cards to expand your vocabulary.
+  </Step>
+  <Step title="Focus on starred cards">
+    Use the ★ Star filter to do a quick review of your most important or challenging vocabulary.
+  </Step>
+  <Step title="Practice reverse">
+    Switch to ↔ Flip mode to practice producing the target language (harder but more effective).
+  </Step>
+</Steps>
+
+### Targeted level study
+
+<Steps>
+  <Step title="Select your level">
+    Click the level button for your current proficiency (e.g., A2 for CEFR, N4 for JLPT).
+  </Step>
+  <Step title="Master the level">
+    Study all cards in that level until you can consistently rate them as "Good" or "Easy".
+  </Step>
+  <Step title="Move up">
+    Once you've mastered a level, move to the next one (e.g., N4 → N3).
+  </Step>
+</Steps>
+
+### Intensive error review
+
+<Steps>
+  <Step title="Study normally">
+    Go through your regular study session, honestly rating each card.
+  </Step>
+  <Step title="Review errors">
+    When KAnki offers error review mode, accept it to immediately practice the cards you got wrong.
+  </Step>
+  <Step title="Star problem cards">
+    Mark cards you consistently struggle with using the ☆ button.
+  </Step>
+  <Step title="Focused practice">
+    Later, use the ★ Star filter to do extra practice on your problem vocabulary.
+  </Step>
+</Steps>
+
+## Tips for effective learning
+
+<CardGroup cols={2}>
+  <Card title="Be honest with ratings" icon="scale-balanced">
+    Don't mark cards as "Easy" just to finish faster. Honest self-assessment leads to better learning.
+  </Card>
+  <Card title="Study consistently" icon="calendar-check">
+    Daily 10-15 minute sessions are more effective than occasional long sessions.
+  </Card>
+  <Card title="Use reverse mode" icon="arrows-rotate">
+    Practicing production (native → target) is harder but builds stronger recall.
+  </Card>
+  <Card title="Add context notes" icon="note-sticky">
+    Good notes help you remember words better. Include example sentences or mnemonics.
+  </Card>
+  <Card title="Start with one level" icon="layer-group">
+    Focus on mastering one proficiency level before moving to the next.
+  </Card>
+  <Card title="Review starred cards" icon="star">
+    Do quick reviews of starred cards during spare moments throughout the day.
+  </Card>
+</CardGroup>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
+Now that you know the basics:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Customize your deck" icon="pen-to-square" href="/configuration/language-setup">
+    Learn how to configure KAnki for different languages and customize your learning experience
+  </Card>
+  <Card title="Create better cards" icon="lightbulb" href="/configuration/deck-management">
+    Discover best practices for creating effective flashcards and organizing your vocabulary
+  </Card>
+  <Card title="Use companion tools" icon="toolbox" href="/advanced/deck-editors">
+    Explore web-based deck editors like Üben and KindleModShelf for easier deck management
+  </Card>
+  <Card title="Join the community" icon="users" href="https://discord.gg/JtcrpG7ECA">
+    Connect with other KAnki users for tips, decks, and support
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

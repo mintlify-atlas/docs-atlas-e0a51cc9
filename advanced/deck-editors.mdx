@@ -1,0 +1,115 @@
+---
+title: Web-based deck editors
+description: Manage your KAnki flashcard decks using Üben or KindleModShelf web editors with modern interfaces
+---
+
+Since Kindle devices cannot process `.apkg` files directly and manual deck editing is tedious, you can use web-based editors to create and manage your flashcard decks more efficiently.
+
+## Üben editor
+
+[Üben](https://www.uben.online/) is the recommended companion tool for managing KAnki decks with a modern UI.
+
+<Steps>
+  <Step title="Import an Anki deck">
+    Find a deck on Anki (e.g., shared decks online) and import the `.apkg` file into Üben.
+  </Step>
+  
+  <Step title="Edit your cards">
+    Use Üben's modern interface to add, edit, or update cards. You can modify:
+    - Front text (target language)
+    - Back text (translation)
+    - Reading/pronunciation
+    - Notes and context
+    - Proficiency level
+  </Step>
+  
+  <Step title="Export to KAnki format">
+    When you're done editing, export from Üben to generate a `kanki_config.js` file.
+  </Step>
+  
+  <Step title="Transfer to Kindle">
+    Copy the exported `kanki_config.js` file to your Kindle at:
+    ```
+    /documents/kanki/js/kanki_config.js
+    ```
+    Replace your existing configuration file.
+  </Step>
+  
+  <Step title="Launch KAnki">
+    Open KAnki on your Kindle to use the new deck.
+  </Step>
+</Steps>
+
+<Info>
+  Üben also features a **KAnki Community** section where you can share and discover language/study material configurations created by other users.
+</Info>
+
+### Advantages of Üben
+
+- Much better UI for editing and creating decks compared to manual editing
+- Direct import from Anki's `.apkg` format
+- Community deck sharing
+- Export ready-to-use configuration files
+- No need to manually type out decks on Kindle
+
+## KindleModShelf editor
+
+The [KindleModShelf editor](https://kindlemodshelf.me/editor.html) provides an alternative web-based interface for managing KAnki flashcards.
+
+### Features
+
+- Upload existing flashcard configuration files
+- Add, edit, and delete cards and decks through a visual interface
+- Preview how flashcards will look on different Kindle generations
+- Export modified configuration back to your Kindle
+
+### Usage
+
+<Steps>
+  <Step title="Upload your configuration">
+    Open the editor and upload your existing `kanki_config.js` file.
+  </Step>
+  
+  <Step title="Make changes">
+    Use the visual interface to modify your deck structure and card content.
+  </Step>
+  
+  <Step title="Preview">
+    Check how your cards will render on your specific Kindle model.
+  </Step>
+  
+  <Step title="Download and transfer">
+    Export the updated configuration and copy it to your Kindle.
+  </Step>
+</Steps>
+
+## Configuration file structure
+
+Both editors generate a `kanki_config.js` file with this structure:
+
+```javascript
+var KANKI_CONFIG = {
+  language: "Spanish",
+  levels: ["A1", "A2", "B1"]
+};
+
+var VOCABULARY = {
+  "A1": [
+    {"front": "hello", "back": "hola", "notes": "Greeting"},
+    {"front": "goodbye", "back": "adiós", "notes": "Farewell"}
+  ],
+  "A2": [
+    {"front": "tomorrow", "back": "mañana", "notes": "Time"}
+  ]
+};
+```
+
+For languages with different writing systems, include a `reading` property:
+
+```javascript
+{"front": "こんにちは", "reading": "konnichiwa", "back": "Hello", "notes": "Greeting"}
+```
+
+<Warning>
+  After transferring a new configuration file, remember to reload KAnki by clicking the 3 dots in the top chrome bar and selecting "Reload" to apply changes.
+</Warning>

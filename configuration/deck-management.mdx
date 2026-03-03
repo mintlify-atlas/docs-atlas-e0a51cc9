@@ -1,0 +1,307 @@
+---
+title: Deck management
+description: Create, organize, and manage your vocabulary decks efficiently in KAnki
+---
+
+KAnki allows you to organize flashcards into decks by proficiency level. You can manage decks directly in the configuration file or use external tools for easier editing.
+
+## Deck structure
+
+Decks in KAnki are organized by proficiency levels defined in `KANKI_CONFIG.levels`. Each level corresponds to a key in the `VOCABULARY` object.
+
+```javascript kanki_config.js
+var KANKI_CONFIG = {
+  language: "Japanese",
+  levels: ["N5", "N4"]  // Available decks
+};
+
+var VOCABULARY = {
+  "N5": [
+    // N5 level cards
+  ],
+  "N4": [
+    // N4 level cards
+  ]
+};
+```
+
+## Creating a new deck
+
+<Steps>
+  <Step title="Add the level to KANKI_CONFIG">
+    Add your new level name to the `levels` array:
+
+    ```javascript kanki_config.js
+    var KANKI_CONFIG = {
+      language: "Japanese",
+      levels: ["N5", "N4", "N3"]  // Added N3
+    };
+    ```
+  </Step>
+
+  <Step title="Create the vocabulary section">
+    Add a corresponding key in the `VOCABULARY` object:
+
+    ```javascript kanki_config.js
+    var VOCABULARY = {
+      "N5": [
+        {"front": "こんにちは", "back": "Hello", "notes": "Greeting"}
+      ],
+      "N4": [
+        {"front": "急ぐ", "reading": "いそぐ", "back": "To hurry", "notes": "Verb"}
+      ],
+      "N3": [
+        {"front": "約束", "reading": "やくそく", "back": "Promise", "notes": "Noun"}
+      ]
+    };
+    ```
+  </Step>
+
+  <Step title="Save and transfer to Kindle">
+    Save the file and transfer it to your Kindle's `kanki/js/` directory.
+  </Step>
+</Steps>
+
+## Deck management tools
+
+Managing large decks directly in the configuration file can be tedious. Use these tools for easier deck management:
+
+<Tabs>
+  <Tab title="Üben (Recommended)">
+    [Üben](https://www.uben.online/) is the official companion tool for KAnki with a modern UI.
+
+    ### Features
+    - Import `.apkg` files from Anki
+    - Visual card editor with preview
+    - Deck organization and management
+    - Direct export to `kanki_config.js` format
+    - Community deck sharing
+
+    ### Workflow
+    <Steps>
+      <Step title="Import or create deck">
+        Upload an Anki `.apkg` file or create a new deck in Üben.
+      </Step>
+      
+      <Step title="Edit cards">
+        Add, modify, or delete cards using the visual editor.
+      </Step>
+      
+      <Step title="Export configuration">
+        Export your deck as `kanki_config.js`.
+      </Step>
+      
+      <Step title="Transfer to Kindle">
+        Copy the exported file to `kanki/js/kanki_config.js` on your Kindle.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="KAnki Web Editor">
+    The [KAnki Web Editor](https://kindlemodshelf.me/editor.html) by Kindlemodshelfguy provides a browser-based editing interface.
+
+    ### Features
+    - Upload existing configuration files
+    - Add, edit, and delete cards through a UI
+    - Preview cards for different Kindle generations
+    - Export modified configuration
+
+    ### How to use
+    1. Visit https://kindlemodshelf.me/editor.html
+    2. Upload your current `kanki_config.js`
+    3. Make your changes in the web interface
+    4. Download the updated configuration
+    5. Transfer to your Kindle
+  </Tab>
+
+  <Tab title="Manual editing">
+    For small decks or quick changes, edit `kanki_config.js` directly.
+
+    ### Best practices
+    - Use a code editor with JavaScript syntax highlighting
+    - Maintain consistent formatting for readability
+    - Validate JSON syntax before transferring
+    - Keep backup copies of your configuration
+
+    ### Example structure
+    ```javascript kanki_config.js
+    var VOCABULARY = {
+      "N5": [
+        {
+          "front": "こんにちは",
+          "back": "Hello",
+          "notes": "Greeting"
+        },
+        {
+          "front": "水",
+          "reading": "みず",
+          "back": "Water",
+          "notes": "Noun"
+        }
+      ]
+    };
+    ```
+  </Tab>
+</Tabs>
+
+## Importing Anki decks
+
+You can convert existing Anki decks to KAnki format:
+
+<Steps>
+  <Step title="Find or export an Anki deck">
+    Download a shared deck from [AnkiWeb](https://ankiweb.net/shared/decks) or export your own deck as `.apkg`.
+  </Step>
+
+  <Step title="Import to Üben">
+    Upload the `.apkg` file to [Üben](https://www.uben.online/).
+  </Step>
+
+  <Step title="Customize for KAnki">
+    Edit the deck to match your preferred level structure and add any missing fields.
+  </Step>
+
+  <Step title="Export and transfer">
+    Export as `kanki_config.js` and copy to your Kindle.
+  </Step>
+</Steps>
+
+<Note>
+When importing from Anki, you may need to manually map Anki's tags or note types to KAnki's level system.
+</Note>
+
+## Organizing large decks
+
+### By proficiency level
+
+Organize cards into levels that match standardized proficiency frameworks:
+
+```javascript kanki_config.js
+var KANKI_CONFIG = {
+  language: "Spanish",
+  levels: ["A1", "A2", "B1", "B2", "C1", "C2"]
+};
+```
+
+### By topic or theme
+
+Alternatively, organize by subject matter:
+
+```javascript kanki_config.js
+var KANKI_CONFIG = {
+  language: "Japanese",
+  levels: ["Greetings", "Food", "Travel", "Business"]
+};
+```
+
+### By word type
+
+Group by grammatical category:
+
+```javascript kanki_config.js
+var KANKI_CONFIG = {
+  language: "French",
+  levels: ["Nouns", "Verbs", "Adjectives", "Phrases"]
+};
+```
+
+<Warning>
+Changing level names will reset your progress for those decks. If you need to reorganize, export your progress data first.
+</Warning>
+
+## Card best practices
+
+### Keep cards simple
+
+Focus on one concept per card:
+
+<CodeGroup>
+```javascript Good example
+{"front": "食べる", "reading": "たべる", "back": "To eat", "notes": "Verb"}
+```
+
+```javascript Avoid
+{
+  "front": "食べる/飲む",
+  "reading": "たべる/のむ",
+  "back": "To eat / To drink",
+  "notes": "Verbs for consuming"
+}
+```
+</CodeGroup>
+
+### Use consistent formatting
+
+Maintain uniform capitalization and punctuation:
+
+```javascript kanki_config.js
+var VOCABULARY = {
+  "N5": [
+    {"front": "こんにちは", "back": "Hello", "notes": "Greeting"},
+    {"front": "ありがとう", "back": "Thank you", "notes": "Gratitude"},
+    {"front": "さようなら", "back": "Goodbye", "notes": "Parting"}
+  ]
+};
+```
+
+### Add context in notes
+
+Use the `notes` field to provide helpful context:
+
+```javascript kanki_config.js
+{"front": "高い", "reading": "たかい", "back": "Expensive/Tall", "notes": "Adjective"}
+```
+
+## Real example from KAnki
+
+Here's a complete working configuration from the KAnki source:
+
+```javascript kanki_config.js
+var KANKI_CONFIG = {
+  language: "Japanese",
+  levels: ["N5", "N4"]
+};
+
+var VOCABULARY = {
+  "N5": [
+    {"front": "こんにちは", "back": "Hello", "notes": "Greeting"},
+    {"front": "ありがとう", "back": "Thank you", "notes": "Gratitude"},
+    {"front": "さようなら", "back": "Goodbye", "notes": "Parting"},
+    {"front": "水", "reading": "みず", "back": "Water", "notes": "Noun"},
+    {"front": "本", "reading": "ほん", "back": "Book", "notes": "Noun"},
+    {"front": "食べる", "reading": "たべる", "back": "To eat", "notes": "Verb"}
+  ],
+  "N4": [
+    {"front": "急ぐ", "reading": "いそぐ", "back": "To hurry", "notes": "Verb"},
+    {"front": "必要", "reading": "ひつよう", "back": "Necessary", "notes": "Na-Adjective"},
+    {"front": "練習", "reading": "れんしゅう", "back": "Practice", "notes": "Noun/Suru-verb"}
+  ]
+};
+```
+
+## Exporting to Anki
+
+If you want to use your KAnki deck on desktop or mobile, convert it to Anki format:
+
+1. Visit [KankiToAnki](https://kankitoanki.vercel.app/)
+2. Upload your `kanki_config.js` file
+3. Download the generated `.apkg` file
+4. Import into Anki desktop or mobile app
+
+## Deck maintenance tips
+
+- **Regular backups**: Keep copies of your `kanki_config.js` file
+- **Version control**: Use git to track changes if editing manually
+- **Test after changes**: Load a few cards after editing to verify syntax
+- **Start small**: Begin with 20-30 cards per level before expanding
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Language setup" icon="language" href="/configuration/language-setup">
+    Configure KAnki for different languages
+  </Card>
+  <Card title="Custom fonts" icon="font" href="/configuration/custom-fonts">
+    Install fonts that support your language
+  </Card>
+</CardGroup>

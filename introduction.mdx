@@ -1,0 +1,108 @@
+---
+title: KAnki - Flashcard Learning for Kindle
+description: A spaced repetition flashcard app designed for jailbroken Kindle devices with e-ink optimized UI
+---
+
+# KAnki: Universal flashcard app for Kindle
+
+KAnki is a spaced repetition flashcard application designed specifically for jailbroken Kindle devices. It helps you learn vocabulary in any language through digital flashcards with an intelligent spaced repetition system, all optimized for e-ink displays.
+
+<CardGroup cols={2}>
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Get your first flashcard deck running in minutes
+  </Card>
+  <Card title="Installation" icon="download" href="/installation">
+    Complete setup guide for jailbroken Kindle devices
+  </Card>
+  <Card title="Configuration" icon="gear" href="/configuration/language-setup">
+    Customize KAnki for any language and proficiency system
+  </Card>
+  <Card title="Deck management" icon="layer-group" href="/configuration/deck-management">
+    Learn how to create and manage your flashcard decks
+  </Card>
+</CardGroup>
+
+## Why KAnki?
+
+KAnki brings the power of spaced repetition learning to your Kindle's distraction-free e-ink display. Perfect for language learners who want to study effectively without the distractions of modern devices.
+
+### Key features
+
+<CardGroup cols={2}>
+  <Card title="Universal language support" icon="globe">
+    Learn any language by simply changing the font and vocabulary - supports JLPT, CEFR, HSK, and custom proficiency systems
+  </Card>
+  <Card title="Spaced repetition system" icon="calendar">
+    Intelligent algorithm optimizes learning by scheduling card reviews at optimal intervals (10 minutes to 4 days)
+  </Card>
+  <Card title="Star system" icon="star">
+    Mark important cards and filter to review only starred items for focused study sessions
+  </Card>
+  <Card title="Reversible cards" icon="arrows-rotate">
+    Switch between target language → native and native → target language modes
+  </Card>
+  <Card title="Per-card statistics" icon="chart-line">
+    Track how many times each card has been viewed with detailed review history
+  </Card>
+  <Card title="Error review mode" icon="rotate-left">
+    Review cards you answered incorrectly immediately after completing a session
+  </Card>
+  <Card title="E-ink optimized" icon="display">
+    Fixed element heights and visibility management minimize screen refreshes for better reading experience
+  </Card>
+  <Card title="Data persistence" icon="floppy-disk">
+    All study progress and card statistics automatically saved between sessions using localStorage
+  </Card>
+</CardGroup>
+
+## Technical details
+
+<Info>
+KAnki is built with ES5 JavaScript, HTML, and CSS to ensure compatibility with Kindle's limited browser capabilities. It uses XMLHttpRequest instead of modern fetch APIs and avoids modern CSS features like flexbox and grid.
+</Info>
+
+### Supported devices
+
+KAnki works on jailbroken Kindle devices with different screen sizes:
+
+- **Kindle Scribe** - 1800×2400px displays with optimized large layouts
+- **Large Kindles** - 1050×1400px displays (Kindle Oasis, Paperwhite)
+- **Medium Kindles** - 750×1000px displays (older Kindle models)
+
+### What you'll need
+
+- A jailbroken Kindle device
+- Access to the Kindle's filesystem via USB
+- Basic knowledge of file transfer
+- A TTF font file for your target language (if studying non-Latin scripts)
+
+## Companion tools
+
+<CardGroup cols={2}>
+  <Card title="Üben" icon="pen-to-square" href="https://www.uben.online/">
+    Modern web UI for creating and editing KAnki decks - import .apkg files from Anki and export ready-to-use configurations
+  </Card>
+  <Card title="KAnki Web Editor" icon="globe" href="https://kindlemodshelf.me/editor.html">
+    Visual editor for managing flashcards with preview for different Kindle generations
+  </Card>
+  <Card title="KankiToAnki" icon="box-archive" href="https://kankitoanki.vercel.app/">
+    Convert KAnki configurations to Anki .apkg format for desktop/mobile Anki apps
+  </Card>
+  <Card title="Discord Community" icon="discord" href="https://discord.gg/JtcrpG7ECA">
+    Join the community for support, suggestions, and to share your study materials
+  </Card>
+</CardGroup>
+
+## Ready to get started?
+
+<Steps>
+  <Step title="Install KAnki">
+    Follow the [installation guide](/installation) to set up KAnki on your jailbroken Kindle device.
+  </Step>
+  <Step title="Configure your language">
+    Customize the configuration file for your target language and proficiency system.
+  </Step>
+  <Step title="Start learning">
+    Launch KAnki and begin your first spaced repetition study session.
+  </Step>
+</Steps>

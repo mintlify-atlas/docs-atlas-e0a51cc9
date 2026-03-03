@@ -1,0 +1,96 @@
+---
+title: Spaced repetition
+description: Learn how KAnki's spaced repetition algorithm optimizes your learning schedule
+---
+
+KAnki uses a simplified SM-2 (SuperMemo 2) spaced repetition algorithm to help you learn vocabulary efficiently. Cards are scheduled for review at increasing intervals based on how well you remember them.
+
+## How it works
+
+When you review a card, KAnki calculates the next review time based on your response. Each card tracks:
+
+- **Difficulty level**: Increases when you answer correctly, resets when you answer incorrectly
+- **Next review date**: When the card will appear again in your study queue
+- **Review history**: All your past answers with timestamps
+
+## Review intervals
+
+KAnki offers four response options when you reveal a card's answer:
+
+<CardGroup cols={2}>
+  <Card title="Again" icon="rotate-left">
+    10 minutes - Resets the card's difficulty level
+  </Card>
+  <Card title="Hard" icon="clock">
+    1 day - Keeps the same difficulty level
+  </Card>
+  <Card title="Good" icon="check">
+    3 days - Increases difficulty by 1 level
+  </Card>
+  <Card title="Easy" icon="star">
+    4 days - Increases difficulty by 2 levels
+  </Card>
+</CardGroup>
+
+<Note>
+The intervals shown are base intervals. As your difficulty level increases, KAnki automatically extends these intervals using a multiplier formula: `interval × (1 + difficulty × 0.5)`
+</Note>
+
+## Difficulty progression
+
+As you master cards, the intervals grow exponentially based on your difficulty level:
+
+| Difficulty Level | Base Interval |
+|------------------|---------------|
+| 1 | 1 day |
+| 2 | 3 days |
+| 3 | 1 week |
+| 4 | 2 weeks |
+| 5 | 1 month |
+| 6+ | 2 months |
+
+<Tip>
+Cards appear in your study queue when their `nextReview` timestamp is less than or equal to the current time. This means you'll only see cards that are actually due for review.
+</Tip>
+
+## Card data structure
+
+Each card in KAnki stores the following information in main.js:217:
+
+```javascript
+{
+  front: "target language text",
+  back: "translation",
+  notes: "additional context",
+  level: "N5",
+  difficulty: 0,
+  nextReview: timestamp,
+  history: [{date: timestamp, result: true/false}],
+  starred: false,
+  timesViewed: 0,
+  lastViewed: timestamp
+}
+```
+
+## Incorrect answers
+
+When you mark a card as "Again" or answer incorrectly:
+
+1. The card's difficulty resets to 0
+2. The next review is scheduled for 10 minutes from now
+3. The card is added to the error review queue
+4. After completing your regular session, you'll be prompted to review incorrect cards
+
+<Info>
+This immediate review system helps reinforce difficult vocabulary before they're forgotten.
+</Info>
+
+## Progress persistence
+
+All spaced repetition data is automatically saved to your Kindle's localStorage at:
+
+```
+/Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+```
+
+You can reset your progress using the **Reset Progress** button in the app menu, which clears all review history while keeping your deck intact.

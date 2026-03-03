@@ -1,0 +1,431 @@
+---
+title: Technical limitations
+description: Understand Kindle browser constraints, ES5 JavaScript requirements, and CSS limitations when developing for KAnki
+---
+
+KAnki is designed for jailbroken Kindle devices with very limited browser capabilities. Understanding these constraints is essential for customizing the app or creating compatible decks.
+
+## Kindle browser constraints
+
+Kindle devices run an older WebKit-based browser with severely limited features compared to modern browsers.
+
+### JavaScript version
+
+<Warning>
+  KAnki must use **ES5 JavaScript only**. No modern JavaScript features are supported.
+</Warning>
+
+#### Not available
+- Arrow functions: `() => {}`
+- Template literals: `` `Hello ${name}` ``
+- Destructuring: `const {x, y} = obj`
+- Spread operator: `...array`
+- `let` and `const` declarations
+- Classes: `class MyClass {}`
+- Promises and async/await
+- Array methods like `.find()`, `.includes()`, `.from()`
+- `Map`, `Set`, `Symbol`, `WeakMap`
+
+#### Must use instead
+- `var` for all variable declarations
+- `function` keyword for functions
+- String concatenation: `'Hello ' + name`
+- `Array.prototype.indexOf()` instead of `.includes()`
+- Callback-based patterns instead of promises
+- XMLHttpRequest instead of fetch API
+
+### ES5 patterns in KAnki source
+
+Here are examples from the actual codebase:
+
+```javascript
+// Variable declarations - only 'var' works
+var currentCardIndex = 0;
+var correctAnswers = 0;
+var deck = null;
+
+// Function declarations - no arrow functions
+function getDueCards() {
+  var now = new Date().getTime();
+  var dueCards = [];
+  
+  for (var i = 0; i < deck.cards.length; i++) {
+    var card = deck.cards[i];
+    if (card.nextReview <= now) {
+      dueCards.push(card);
+    }
+  }
+  
+  return dueCards;
+}
+
+// Closures for event handlers
+function createLevelChangeHandler(level) {
+  return function() {
+    changeLevel(level);
+  };
+}
+
+// Array iteration - no forEach or map
+for (var i = 0; i < deck.cards.length; i++) {
+  deck.cards[i].difficulty = 0;
+}
+
+// Filtering arrays manually
+incorrectCardsQueue = incorrectCardsQueue.filter(function(card) {
+  return card !== null;
+});
+
+// Timeouts use function() syntax
+setTimeout(function() {
+  fontLoaded = true;
+  displayCurrentCard(false);
+}, 1000);
+```
+
+### Polyfills included
+
+KAnki includes `polyfill.min.js` to provide some modern JavaScript features as ES5-compatible implementations. However, the core codebase avoids relying on these when possible.
+
+## CSS limitations
+
+The Kindle browser supports only basic CSS2 with minimal CSS3 features.
+
+### Not available
+<Warning>
+  Modern layout systems don't work on Kindle browsers.
+</Warning>
+
+- **No Flexbox**: `display: flex` is not supported
+- **No CSS Grid**: `display: grid` is not supported
+- **No CSS variables**: `var(--color-primary)` doesn't work
+- **Limited transforms**: Most `transform` properties fail
+- **No animations**: `@keyframes` and `animation` are unreliable
+- **No media queries**: `@media` has very limited support
+- **No pseudo-elements**: `:before` and `:after` work inconsistently
+
+### What works
+
+```css
+/* Basic box model */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+/* Absolute and relative positioning */
+.popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -100px;
+  margin-left: -140px;
+}
+
+/* Table-based layouts (most reliable) */
+.menuBar {
+  width: 98%;
+  display: table;
+  table-layout: fixed;
+  border-spacing: 0;
+}
+
+.menuSection {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* Basic typography */
+.cardFront {
+  font-size: 2em;
+  font-weight: bold;
+  font-family: 'LanguageFont', sans-serif;
+}
+
+/* Fixed dimensions */
+.card {
+  height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+```
+
+### Layout strategy
+
+From the KAnki source, the app uses:
+
+1. **Table-based layouts** for complex arrangements:
+```css
+.topBar {
+  width: 100%;
+  display: table;
+  table-layout: fixed;
+}
+
+.logoArea {
+  display: table-cell;
+  width: 25%;
+}
+
+.infoArea {
+  display: table-cell;
+  width: 75%;
+}
+```
+
+2. **Fixed heights** to prevent layout shifts on e-ink displays:
+```css
+.card {
+  height: 300px; /* Fixed height instead of min-height */
+}
+
+#controlButtons {
+  height: 100px;
+  position: relative;
+}
+```
+
+3. **Absolute positioning** for overlays:
+```css
+#intervalButtons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+```
+
+### Font loading
+
+Custom fonts must use `@font-face` with TTF format:
+
+```css
+@font-face {
+  font-family: 'LanguageFont';
+  src: url('assets/fonts/language.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+body {
+  font-family: 'LanguageFont', sans-serif;
+}
+```
+
+<Info>
+  KAnki waits 1000ms after page load to ensure fonts are loaded before displaying cards. This prevents rendering issues with non-Latin scripts.
+</Info>
+
+## E-ink display optimization
+
+E-ink screens refresh slowly and can show ghosting. KAnki implements several techniques to minimize visual issues:
+
+### Fixed element heights
+
+```javascript
+function initializeFixedHeights() {
+  var cardContainer = document.getElementById("cardContainer");
+  var controlButtons = document.getElementById("controlButtons");
+  
+  cardContainer.style.height = "300px";
+  controlButtons.style.height = "100px";
+  
+  // Prevents layout shifts during content changes
+}
+```
+
+### Visibility instead of display
+
+```javascript
+// Hide without changing layout
+intervalButtons.style.visibility = "hidden";
+
+// Show when needed
+intervalButtons.style.visibility = "visible";
+```
+
+This prevents the screen from reflowing when elements appear/disappear.
+
+### Grayscale enforcement
+
+```css
+body {
+  filter: grayscale(1);
+}
+```
+
+Forces grayscale rendering since Kindle e-ink displays don't show color.
+
+## Screen size variations
+
+Different Kindle models have vastly different resolutions:
+
+- **Basic Kindle**: 600×800 pixels
+- **Paperwhite**: 1072×1448 pixels (higher DPI)
+- **Oasis**: 1264×1680 pixels
+- **Scribe**: 1860×2480 pixels
+
+### Responsive scaling
+
+KAnki detects screen size and applies device-specific scaling:
+
+```javascript
+function detectDeviceAndSetScaling() {
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  var deviceScaleFactor = 1.0;
+  
+  // Paperwhite detection
+  if ((width >= 1070 && width <= 1080) && 
+      (height >= 1440 && height <= 1460)) {
+    deviceScaleFactor = 0.6;
+  }
+  // High DPI devices
+  else if (width >= 1000 && height >= 1400) {
+    deviceScaleFactor = 0.65;
+  }
+  // Mid-size screens
+  else if (width >= 750 && width < 1000) {
+    deviceScaleFactor = 0.8;
+  }
+  
+  // Apply scaling
+  document.documentElement.style.fontSize = 
+    (deviceScaleFactor * 100) + "%";
+}
+```
+
+### Size-specific CSS classes
+
+The app adds classes to enable device-specific styling:
+
+```javascript
+if (width <= 600) {
+  body.classList.add('kindle-small');
+} else if (width <= 850) {
+  body.classList.add('kindle-medium');
+} else if (width <= 1300) {
+  body.classList.add('kindle-large');
+} else {
+  body.classList.add('kindle-xlarge');
+}
+```
+
+## Storage limitations
+
+### localStorage only
+
+<Warning>
+  Kindle browsers don't support IndexedDB, Web SQL, or other modern storage APIs.
+</Warning>
+
+KAnki uses `localStorage` exclusively:
+
+```javascript
+// Saving data
+function saveDeck() {
+  if (deck) {
+    try {
+      localStorage.setItem('kanki_deck', JSON.stringify(deck));
+    } catch (e) {
+      log("Error saving deck: " + e.message);
+    }
+  }
+}
+
+// Loading data
+function loadDeck() {
+  try {
+    var savedDeck = localStorage.getItem('kanki_deck');
+    if (savedDeck) {
+      deck = JSON.parse(savedDeck);
+      return true;
+    }
+  } catch (e) {
+    log("Error loading deck: " + e.message);
+  }
+  return false;
+}
+```
+
+### Storage location
+
+Data is stored at:
+```
+/Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+```
+
+<Info>
+  localStorage has a size limit of approximately 5-10MB on Kindle devices. For large decks (1000+ cards with extensive history), this can become a constraint.
+</Info>
+
+## Performance considerations
+
+### Debouncing viewport changes
+
+```javascript
+function handleViewportChange() {
+  if (window.resizeTimer) {
+    clearTimeout(window.resizeTimer);
+  }
+  
+  window.resizeTimer = setTimeout(function() {
+    initializeFixedHeights();
+    displayCurrentCard(false);
+  }, 250);
+}
+```
+
+### Preventing accidental inputs
+
+```javascript
+function handleAnswerWithInterval(difficulty) {
+  // Prevent button presses within 500ms of showing answer
+  if (Date.now() - lastShowAnswerTime < 500) {
+    return;
+  }
+  // ... process answer
+}
+```
+
+E-ink displays refresh slowly, so rapid interactions can cause problems.
+
+### DOM updates
+
+Reuse existing elements instead of recreating:
+
+```javascript
+function displayCurrentCard(showAnswer) {
+  // Get existing elements
+  var frontElement = document.getElementById("cardFront");
+  var backElement = document.getElementById("cardBack");
+  
+  // Update content
+  frontElement.innerHTML = card.front;
+  backElement.textContent = card.back;
+  
+  // Toggle visibility
+  backElement.style.display = showAnswer ? "block" : "none";
+}
+```
+
+## Development workflow
+
+When customizing KAnki:
+
+1. **Test on actual hardware**: Kindle's browser behavior differs significantly from desktop browsers
+2. **Use ES5 syntax exclusively**: Run code through an ES5 transpiler if needed
+3. **Avoid modern CSS**: Stick to table layouts and absolute positioning
+4. **Minimize DOM manipulation**: Batch updates and reuse elements
+5. **Test all Kindle models**: Screen sizes vary dramatically
+
+<Accordion title="Can I use a transpiler?">
+  While you *could* use Babel to transpile modern JavaScript to ES5, the KAnki source code is deliberately written in ES5 to avoid build steps and keep development simple. If you add transpilation, test thoroughly on actual Kindle hardware as some polyfills may not work correctly.
+</Accordion>
+
+<Accordion title="Why not use progressive enhancement?">
+  Progressive enhancement would add complexity without benefit. Since the target platform (Kindle) is well-defined and unchanging, optimizing specifically for Kindle's capabilities produces the most reliable results.
+</Accordion>

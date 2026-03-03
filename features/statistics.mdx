@@ -1,0 +1,225 @@
+---
+title: Statistics
+description: Track per-card view counts and review history to monitor your learning progress
+---
+
+KAnki tracks detailed statistics for every card in your deck, helping you understand which vocabulary you've mastered and which needs more practice.
+
+## Per-card statistics
+
+Every time you view a card, KAnki records:
+
+- **Times viewed**: Total number of times you've seen this card
+- **Last viewed**: Timestamp of when you last studied this card
+- **Review history**: Complete log of all your answers with timestamps and results
+- **Difficulty level**: Current mastery level (affects future review intervals)
+
+From main.js:217:
+
+```javascript
+{
+  front: "target text",
+  back: "translation",
+  difficulty: 0,
+  nextReview: timestamp,
+  history: [
+    {date: timestamp, result: true},
+    {date: timestamp, result: false}
+  ],
+  starred: false,
+  timesViewed: 0,
+  lastViewed: null
+}
+```
+
+## Statistics display
+
+While reviewing a card, the statistics appear at the bottom of the card container:
+
+```
+Viewed 5 times • Last: 2 days ago
+```
+
+The display shows:
+- Total view count (incremented each time the card front is displayed)
+- Human-readable time since last view (just now, 5 minutes ago, 2 hours ago, 3 days ago, etc.)
+
+From main.js:1386:
+
+```javascript
+function updateCardStats(card) {
+  var statsElement = document.getElementById("cardStats");
+  var totalViews = card.timesViewed || 0;
+  var lastViewed = card.lastViewed ? new Date(card.lastViewed) : null;
+  
+  var lastViewedText = "never";
+  if (lastViewed) {
+    var diffMs = now - lastViewed;
+    var diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    var diffHours = Math.floor(diffMs / (1000 * 60 * 60)) % 24;
+    var diffMins = Math.floor(diffMs / (1000 * 60)) % 60;
+    // Format human-readable time...
+  }
+  
+  statsElement.innerHTML = "Viewed " + totalViews + " time" +
+    (totalViews !== 1 ? "s" : "") + " • Last: " + lastViewedText;
+}
+```
+
+<Note>
+View counts increment when the card front is displayed, not when you reveal the answer. This means browsing through cards (even without answering) increases the view count.
+</Note>
+
+## View count tracking
+
+From main.js:521, view statistics are updated every time a card is displayed:
+
+```javascript
+if (!showAnswer) {
+  card.timesViewed = (card.timesViewed || 0) + 1;
+  card.lastViewed = new Date().getTime();
+  saveDeck();
+}
+```
+
+The `!showAnswer` check ensures that:
+- View count increases when showing the card front
+- View count does NOT increase when revealing the answer
+- Each unique card appearance counts as one view
+
+## Review history
+
+KAnki maintains a detailed history array for each card, recording every answer you provide:
+
+```javascript
+history: [
+  {date: 1709467890000, result: true},
+  {date: 1709481234000, result: false},
+  {date: 1709567890000, result: true, difficulty: 'good'}
+]
+```
+
+Each history entry contains:
+- **date**: Unix timestamp (milliseconds since epoch)
+- **result**: Boolean indicating correct (true) or incorrect (false)
+- **difficulty**: Optional field recording which interval button you pressed (again, hard, good, easy)
+
+<Info>
+The history array is used internally to calculate accuracy rates and can be exported for external analysis or visualization.
+</Info>
+
+## Session statistics
+
+During an active study session, KAnki displays real-time progress statistics:
+
+```
+Card: 3/15 • ✓8 • ✗2
+```
+
+This shows:
+- Current card position in the due cards queue (3 out of 15)
+- Total correct answers in this session (✓8)
+- Total incorrect answers in this session (✗2)
+
+From main.js:571:
+
+```javascript
+progressElement.textContent = "Card: " + (currentCardIndex % dueCards.length + 1) +
+  "/" + dueCards.length + " • ✓" + correctAnswers +
+  " • ✗" + incorrectAnswers;
+```
+
+### Session mode indicators
+
+The progress display changes based on your current review mode:
+
+**Normal study mode**:
+```
+Card: 3/15 • ✓8 • ✗2
+```
+
+**Error review mode**:
+```
+⚠️ 2/5 • ✓3 • ✗2
+```
+
+**Starred review mode**:
+```
+★ 4/7 starred cards
+```
+
+**Completion**:
+```
+✓ Done!
+```
+
+## Statistics persistence
+
+All card statistics are automatically saved to localStorage after every interaction:
+
+- When incrementing view counts
+- When recording answers
+- When changing star status
+- When updating difficulty levels
+
+Your complete statistical history is stored at:
+```
+/Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+```
+
+<Tip>
+To preserve your statistics when updating KAnki, never delete the localStorage file. Only delete it if you want to completely reset your progress.
+</Tip>
+
+## Using statistics for learning
+
+You can use the statistics display to:
+
+<CardGroup cols={2}>
+  <Card title="Identify difficult cards" icon="triangle-exclamation">
+    Cards with high view counts but low difficulty levels need more practice
+  </Card>
+  <Card title="Track consistency" icon="calendar-check">
+    The "last viewed" timestamp shows if you're reviewing regularly
+  </Card>
+  <Card title="Measure progress" icon="chart-line">
+    Decreasing view counts over time indicate improving mastery
+  </Card>
+  <Card title="Monitor retention" icon="brain">
+    Review history shows your answer patterns for each card
+  </Card>
+</CardGroup>
+
+## Reset options
+
+KAnki provides two reset options in the app menu:
+
+**Reset Progress**:
+- Clears all difficulty levels (resets to 0)
+- Clears all review history
+- Clears all view counts and timestamps
+- Keeps your deck structure and starred cards
+- Resets all cards to be due for immediate review
+
+**Reset All**:
+- Performs everything in Reset Progress
+- Returns to the default deck from `kanki_config.js`
+- Clears all starred cards
+- Resets all filters and preferences
+
+From main.js:971:
+
+```javascript
+function resetProgress() {
+  for (var i = 0; i < deck.cards.length; i++) {
+    deck.cards[i].difficulty = 0;
+    deck.cards[i].nextReview = new Date().getTime();
+    deck.cards[i].history = [];
+  }
+  saveDeck();
+}
+```
+
+<Note>
+Statistics are card-specific, not answer-direction specific. Viewing a card in reversed mode increments the same view counter as normal mode.
+</Note>

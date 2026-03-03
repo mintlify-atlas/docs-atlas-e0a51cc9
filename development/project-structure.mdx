@@ -1,0 +1,210 @@
+---
+title: Project structure
+description: Understand the KAnki codebase architecture and file organization
+---
+
+KAnki follows a simple, flat file structure optimized for Kindle's limited browser environment. All files are organized for easy access and minimal HTTP requests.
+
+## Directory structure
+
+The application consists of a startup script and the main app directory:
+
+```
+kanki.sh             # Installation and startup script
+kanki/
+  config.xml         # Widget configuration
+  index.html         # Main HTML file
+  main.js            # Core application logic
+  main.css           # Styles
+  responsive.css     # Device-specific responsive styles
+  assets/
+    fonts/
+      language.ttf   # User-provided language font
+  js/
+    kanki_config.js  # Language configuration and vocabulary
+    polyfill.min.js  # ES5 polyfills for older browsers
+    sdk.js           # Kindle-specific SDK functions
+```
+
+## Core files
+
+### kanki.sh
+
+The installation script that:
+- Copies the `kanki/` directory from `/mnt/us/documents/` to `/var/local/mesquite/kanki`
+- Registers the app in Kindle's SQLite database (`appreg.db`)
+- Launches the app using LIPC (Lab126 Inter-Process Communication)
+
+<Info>
+The app ID is `xyz.kurizu.kanki`. This identifier is used throughout the Kindle system to reference the application.
+</Info>
+
+### config.xml
+
+Defines the widget configuration following Amazon's Kindle widget specification. Key features:
+
+- **Permissions**: Local port access for file operations
+- **Network settings**: User agent, connection limits, DNS configuration
+- **Cookie jar**: Persistent cookies enabled
+- **Chrome settings**: System search bar configuration
+- **Gestures**: Tap and swipe support
+- **Resources**: LocalStorage quota set to 26MB for card data persistence
+
+<Warning>
+The `internetRequired` setting is set to `yes` even though KAnki works offline. This is a Kindle requirement for widget apps.
+</Warning>
+
+### index.html
+
+The main HTML structure that:
+- Loads polyfills, SDK, configuration, and application scripts in order
+- Preloads the language font to avoid render delays
+- Sets up Kindle chromebar (top navigation) via messaging API
+- Contains a fixed DOM structure to minimize reflows on e-ink displays
+
+<Accordion title="Chromebar configuration">
+The chromebar is configured through the `kindle.messaging.sendMessage` API:
+
+```javascript
+window.kindle.appmgr.ongo = function (ctx) {
+  var chromebar = {
+    "appId": "xyz.kurizu.kanki",
+    "topNavBar": {
+      "template": "title",
+      "title": "KAnki",
+      "buttons": ["KPP_MORE", "KPP_CLOSE"]
+    },
+    "systemMenu": {
+      // Adds "Reload" option to system menu
+    }
+  };
+  window.kindle.messaging.sendMessage("com.lab126.chromebar", "configureChrome", chromebar);
+};
+```
+</Accordion>
+
+### main.js (1471 lines)
+
+The core application logic that implements:
+
+- **State management**: Global variables for card index, scores, review modes
+- **Deck operations**: Create, load, save decks to localStorage
+- **Card management**: Create cards with front/back/reading/notes/level properties
+- **Spaced repetition**: Simplified SM-2 algorithm with difficulty levels
+- **Review modes**: Regular, error review, starred review
+- **Display logic**: Fixed-height elements to prevent e-ink refreshes
+- **Device detection**: Viewport-based scaling for different Kindle models
+- **Statistics**: Per-card view counts and review history
+
+<Note>
+All functions use ES5 syntax (no arrow functions, const/let, or template literals) for compatibility with Kindle's WebKit browser.
+</Note>
+
+### js/kanki_config.js
+
+User-editable configuration file with two global objects:
+
+```javascript
+var KANKI_CONFIG = {
+  language: "Japanese",
+  levels: ["N5", "N4"]
+};
+
+var VOCABULARY = {
+  "N5": [
+    {"front": "こんにちは", "back": "Hello", "notes": "Greeting"},
+    // More cards...
+  ],
+  "N4": [
+    // More cards...
+  ]
+};
+```
+
+Each card object can have:
+- `front`: Target language text
+- `reading`: Optional pronunciation (e.g., hiragana for kanji)
+- `back`: Translation or definition
+- `notes`: Additional context
+- `level`: Proficiency level (matches config levels)
+
+### js/sdk.js
+
+Kindle-specific utility functions developed by Bluebotlaboratories:
+
+- `fetchFile(url, timeout, fixKindleFormatting)`: Load files via hidden iframe
+- `getDirectory(location)`: Parse directory listings from Kindle's file browser
+- `flashDisplay()`: Brief screen inversion for visual feedback
+- `joinPaths(path1, path2)`: Path manipulation helper
+
+<Info>
+The SDK uses iframes to load local files because Kindle's browser doesn't support modern fetch API or AJAX for local file access.
+</Info>
+
+### js/polyfill.min.js
+
+Provides ES5 polyfills for:
+- `Array.prototype.forEach`, `map`, `filter`, `reduce`
+- `Object.keys`, `Object.assign`
+- `String.prototype.trim`, `includes`
+- `Promise` (if needed)
+- `JSON.parse`/`JSON.stringify`
+
+## Data persistence
+
+KAnki stores all deck data and progress in Kindle's localStorage at:
+
+```
+/Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+```
+
+<Accordion title="Data structure">
+The saved deck object includes:
+
+```javascript
+{
+  cards: [
+    {
+      front: "Display text",
+      back: "Translation",
+      notes: "Context",
+      level: "N5",
+      difficulty: 2,
+      nextReview: 1680000000000,
+      history: [{date: 1680000000000, result: true}],
+      starred: false,
+      timesViewed: 5,
+      lastViewed: 1680000000000
+    }
+  ],
+  lastStudied: 1680000000000,
+  name: "Japanese Flashcards"
+}
+```
+</Accordion>
+
+## E-ink optimizations
+
+To minimize screen refreshes and ghosting:
+
+- **Fixed heights**: Card containers have predetermined pixel heights based on device
+- **DOM reuse**: Elements are updated instead of recreated
+- **Visibility toggling**: Elements use `display: none` instead of removing from DOM
+- **Scroll indicators**: CSS-only indicators for scrollable content
+- **Device scaling**: Viewport-based font scaling applied to `<html>` element
+
+## Device detection
+
+KAnki detects device resolution and applies scaling:
+
+| Device | Resolution | Scale Factor |
+|--------|-----------|-------------|
+| Base Kindle | 600×800 | 1.0 |
+| Mid-size | 750-999px width | 0.8 |
+| Paperwhite 3 | 1072×1448 | 0.6 |
+| High-res (Oasis, Scribe) | 1000×1400+ | 0.65 |
+
+The scale factor is applied via:
+```javascript
+document.documentElement.style.fontSize = (deviceScaleFactor * 100) + "%";
+```

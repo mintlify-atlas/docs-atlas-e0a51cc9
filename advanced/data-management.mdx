@@ -1,0 +1,185 @@
+---
+title: Data management
+description: Back up your progress, understand localStorage structure, and reset your KAnki data when needed
+---
+
+KAnki automatically saves all study progress and card statistics to your Kindle's local storage. Understanding how this data is stored helps you back up progress and troubleshoot issues.
+
+## localStorage location
+
+All your study data is stored in your Kindle's localStorage at this path:
+
+```
+/Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+```
+
+<Info>
+  This file contains all your card statistics, review history, difficulty ratings, and timestamps. Your deck configuration (`kanki_config.js`) is stored separately in `/documents/kanki/js/`.
+</Info>
+
+## What data is saved
+
+KAnki persists the following information between sessions:
+
+### Deck data
+```javascript
+{
+  cards: [],
+  lastStudied: <timestamp>,
+  name: "Language Flashcards"
+}
+```
+
+### Card statistics
+Each card tracks:
+- **Difficulty level**: 0-5+ based on spaced repetition algorithm
+- **Next review time**: Calculated timestamp for when card is due
+- **Review history**: Array of all attempts with timestamps and results
+- **Starred status**: Whether the card is marked as important
+- **Times viewed**: Count of how many times you've seen the card
+- **Last viewed**: Timestamp of most recent view
+
+### Example card data structure
+```javascript
+{
+  front: "hello (konnichiwa)",
+  back: "こんにちは",
+  notes: "Greeting",
+  level: "N5",
+  difficulty: 3,
+  nextReview: 1709467200000,
+  history: [
+    {date: 1709380800000, result: true, difficulty: 'good'},
+    {date: 1709294400000, result: false}
+  ],
+  starred: true,
+  timesViewed: 5,
+  lastViewed: 1709467200000
+}
+```
+
+## Backing up your progress
+
+To preserve your study progress before updating KAnki or changing decks:
+
+<Steps>
+  <Step title="Connect your Kindle">
+    Plug your Kindle into your computer via USB.
+  </Step>
+  
+  <Step title="Navigate to localStorage">
+    Browse to:
+    ```
+    /Kindle/.active_content_sandbox/kanki/resource/LocalStorage/
+    ```
+    
+    <Warning>
+      The `.active_content_sandbox` folder may be hidden. Enable "Show hidden files" in your file manager.
+    </Warning>
+  </Step>
+  
+  <Step title="Copy the file">
+    Make a copy of `file__0.localstorage` to your computer for safekeeping.
+  </Step>
+  
+  <Step title="Restore if needed">
+    If you need to restore your progress, copy the backed-up file back to the original location, replacing the existing file.
+  </Step>
+</Steps>
+
+## Resetting data
+
+KAnki provides two reset options:
+
+### Reset progress only
+
+Resets all card statistics while keeping your deck intact:
+
+1. Open KAnki on your Kindle
+2. Access the settings menu (3 dots in top bar)
+3. Select "Reset Progress"
+4. Confirm the action
+
+This resets:
+- All difficulty levels to 0
+- All review times to current time
+- Review history
+- View counts
+- **Starred status is preserved**
+
+### Reset all data
+
+Returns to the default deck and clears all progress:
+
+1. Open KAnki settings
+2. Select "Reset All"
+3. Confirm the action
+
+This:
+- Loads the default deck from `kanki_config.js`
+- Clears all progress and statistics
+- Removes all starred cards
+- Resets level and filter preferences
+
+### Manual reset
+
+Alternatively, you can manually delete the localStorage file:
+
+<Steps>
+  <Step title="Connect Kindle to computer">
+    Use USB connection to access the filesystem.
+  </Step>
+  
+  <Step title="Delete localStorage file">
+    Remove:
+    ```
+    /Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+    ```
+  </Step>
+  
+  <Step title="Restart KAnki">
+    Launch KAnki on your Kindle. It will create a fresh localStorage file with the default deck.
+  </Step>
+</Steps>
+
+<Warning>
+  Manual deletion completely removes all data with no undo option. Always back up first if you might want to restore your progress later.
+</Warning>
+
+## Updating KAnki with existing data
+
+When updating to a new KAnki version:
+
+<Steps>
+  <Step title="Back up your files">
+    Save copies of:
+    - `kanki/js/kanki_config.js` (your deck)
+    - `/Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage` (your progress)
+  </Step>
+  
+  <Step title="Replace KAnki folder">
+    Download the new version and replace the old `/documents/kanki/` folder.
+  </Step>
+  
+  <Step title="Restore your deck">
+    Copy your backed-up `kanki_config.js` to the new:
+    ```
+    /documents/kanki/js/kanki_config.js
+    ```
+  </Step>
+  
+  <Step title="Copy font file">
+    Transfer your `language.ttf` font to:
+    ```
+    /documents/kanki/assets/fonts/language.ttf
+    ```
+  </Step>
+  
+  <Step title="Launch and reload">
+    Open KAnki and click the reload button (3 dots → Reload) to apply changes.
+  </Step>
+</Steps>
+
+<Info>
+  Your localStorage file usually remains intact during updates since it's stored in a separate system directory. However, backing it up is still recommended for safety.
+</Info>

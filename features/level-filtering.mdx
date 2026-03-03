@@ -1,0 +1,145 @@
+---
+title: Level filtering
+description: Filter your flashcard deck by proficiency level (JLPT, CEFR, HSK, or custom)
+---
+
+KAnki allows you to filter cards by proficiency level, letting you focus on vocabulary appropriate for your current skill level. The app supports any leveling system including JLPT, CEFR, HSK, and custom levels.
+
+## Configuring levels
+
+Levels are defined in `kanki_config.js` as part of your deck configuration:
+
+```javascript
+var KANKI_CONFIG = {
+  language: "Japanese",
+  levels: ["N5", "N4", "N3", "N2", "N1"]
+};
+```
+
+Each card in your vocabulary is assigned to one of these levels:
+
+```javascript
+var VOCABULARY = {
+  "N5": [
+    {"front": "こんにちは", "back": "Hello", "notes": "Greeting"},
+    // more N5 words...
+  ],
+  "N4": [
+    {"front": "急ぐ", "reading": "いそぐ", "back": "To hurry", "notes": "Verb"},
+    // more N4 words...
+  ]
+};
+```
+
+<Note>
+You can use any leveling system that makes sense for your target language. Common systems include:
+- **JLPT** (Japanese): N5, N4, N3, N2, N1
+- **CEFR** (European languages): A1, A2, B1, B2, C1, C2
+- **HSK** (Chinese): HSK1, HSK2, HSK3, HSK4, HSK5, HSK6
+- **Custom**: Beginner, Intermediate, Advanced
+</Note>
+
+## Switching between levels
+
+The level filter is accessible from the app menu. When you change levels:
+
+1. The app resets your card counter to 0
+2. Only cards matching the selected level appear in your study queue
+3. Your level preference is saved to localStorage
+4. The level display updates to show the current filter
+
+From main.js:858:
+
+```javascript
+function changeLevel(level) {
+  currentLevel = level;
+  currentCardIndex = 0;
+  updateLevelDisplay();
+  displayCurrentCard(false);
+  saveDeck();
+}
+```
+
+## "All" level
+
+By default, KAnki shows cards from all levels. Selecting **All** removes the level filter and presents cards from your entire deck.
+
+<Tip>
+The "All" mode is useful when you want to review mixed vocabulary or when preparing for comprehensive tests.
+</Tip>
+
+## Level badges
+
+Each card displays a level badge in the top corner showing which proficiency level it belongs to. This helps you track what level vocabulary you're currently studying.
+
+## Combining with other filters
+
+Level filtering works alongside other KAnki features:
+
+- **Starred filter**: Show only starred cards within a specific level
+- **Spaced repetition**: Only due cards from the selected level appear
+- **Reversible mode**: Card direction applies to all cards in the filtered level
+
+The level display shows your current configuration:
+
+```
+N5 ★ • Target→Native
+```
+
+This indicates:
+- Filtering by N5 level
+- Showing starred cards only (★)
+- Cards display target language first
+
+<Info>
+From main.js:580, the level display element combines multiple filter states to give you a complete picture of your current study session.
+</Info>
+
+## Due card calculation
+
+When you filter by level, KAnki only considers cards that match both:
+
+1. The selected level (or "all")
+2. Cards with `nextReview` timestamp ≤ current time
+
+From main.js:422:
+
+```javascript
+function getDueCards() {
+  var now = new Date().getTime();
+  var dueCards = [];
+  
+  for (var i = 0; i < deck.cards.length; i++) {
+    var card = deck.cards[i];
+    if (card.nextReview <= now) {
+      var levelMatch = (currentLevel === "all" || card.level === currentLevel);
+      var starMatch = (!showingStarredOnly || card.starred === true);
+      
+      if (levelMatch && starMatch) {
+        dueCards.push(card);
+      }
+    }
+  }
+  
+  return dueCards;
+}
+```
+
+## Dynamic level buttons
+
+The app automatically generates level filter buttons based on your `kanki_config.js` configuration. You don't need to manually edit the HTML when adding new levels.
+
+From main.js:918:
+
+```javascript
+function updateLevelButtons() {
+  var levelsContainer = document.getElementById("levelButtons");
+  
+  for (var i = 0; i < appLevels.length; i++) {
+    var button = document.createElement("button");
+    button.textContent = appLevels[i];
+    button.onclick = createLevelChangeHandler(appLevels[i]);
+    levelsContainer.appendChild(button);
+  }
+}
+```

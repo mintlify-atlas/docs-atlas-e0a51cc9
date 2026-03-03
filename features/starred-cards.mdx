@@ -1,0 +1,170 @@
+---
+title: Starred cards
+description: Mark important cards and review them separately from your regular study sessions
+---
+
+KAnki's starred cards feature lets you mark vocabulary that needs extra attention. You can filter your deck to show only starred cards or review them at the end of your study session.
+
+## Starring a card
+
+To star the current card, click the star button (☆) in the top-right corner of the card display. The button changes to a filled star (★) to indicate the card is starred.
+
+From main.js:1292:
+
+```javascript
+function toggleStarCurrentCard() {
+  var card = getCurrentCard();
+  card.starred = !card.starred;
+  
+  updateStarButton(card.starred);
+  saveDeck();
+  showToast(card.starred ? "Card starred" : "Card unstarred", 1000);
+}
+```
+
+<Tip>
+You can star cards during any review mode: regular study, error review, or starred review. The star status persists across all sessions.
+</Tip>
+
+## Starred filter
+
+The starred filter (accessible from the app menu) shows only cards that you've marked as starred. This is useful for:
+
+- Focusing on difficult vocabulary
+- Reviewing words you frequently forget
+- Studying specific vocabulary before a test
+- Isolating words that need more practice
+
+When the starred filter is active:
+
+1. Only starred cards appear in your study queue
+2. The level display shows a star symbol (★)
+3. Spaced repetition still applies (only due cards are shown)
+4. The filter button in the menu is highlighted
+
+From main.js:1332:
+
+```javascript
+function toggleStarredFilter() {
+  showingStarredOnly = !showingStarredOnly;
+  currentCardIndex = 0;
+  
+  updateLevelDisplay();
+  displayCurrentCard(false);
+  saveDeck();
+}
+```
+
+<Note>
+Starred filtering works alongside level filtering. You can view starred cards from a specific level or from all levels.
+</Note>
+
+## Starred review mode
+
+After completing your regular study session, KAnki automatically prompts you to review starred cards from that session. This review is separate from your spaced repetition schedule.
+
+The prompt appears when:
+
+1. You've finished reviewing all due cards
+2. You've viewed at least one starred card during the session
+3. You've completed error review (if applicable)
+
+From main.js:1027:
+
+```javascript
+function showStarredReviewPrompt() {
+  var starredCount = getStarredCardsFromCurrentSession().length;
+  showConfirmation(
+    "You have " + starredCount + " starred cards from this session. Review them now?",
+    startStarredReview
+  );
+}
+```
+
+### Starred review behavior
+
+- **Non-destructive**: Reviewing starred cards doesn't affect their spaced repetition schedule
+- **Practice-only**: This mode is for extra practice, not scheduling
+- **Session-based**: Only includes starred cards you viewed during the current session
+- **Progress tracking**: View counts still increment during starred review
+
+<Info>
+The starred review mode is designed for reinforcement learning. Since it doesn't affect scheduling, you can review starred cards as often as you like without disrupting your spaced repetition intervals.
+</Info>
+
+## Starred card data
+
+Each card stores a boolean `starred` property that persists with your deck:
+
+```javascript
+{
+  front: "target text",
+  back: "translation",
+  level: "N5",
+  starred: true,  // Star status
+  difficulty: 2,
+  nextReview: timestamp,
+  history: [...]
+}
+```
+
+From main.js:216, the `starred` property is initialized as `false` when cards are created.
+
+## Star button UI
+
+The star button updates dynamically based on the card's starred status:
+
+```javascript
+function updateStarButton(isStarred) {
+  var starButton = document.getElementById("starButton");
+  
+  if (isStarred) {
+    starButton.innerHTML = "★";
+    starButton.classList.add("starred");
+  } else {
+    starButton.innerHTML = "☆";
+    starButton.classList.remove("starred");
+  }
+}
+```
+
+## Use cases
+
+<CardGroup cols={2}>
+  <Card title="Exam preparation" icon="graduation-cap">
+    Star vocabulary that frequently appears in practice tests
+  </Card>
+  <Card title="Difficult words" icon="brain">
+    Mark words you consistently struggle with for extra practice
+  </Card>
+  <Card title="Priority vocabulary" icon="star">
+    Highlight high-frequency words you need to master first
+  </Card>
+  <Card title="Themed study" icon="book">
+    Star all words related to a specific topic (business, travel, etc.)
+  </Card>
+</CardGroup>
+
+## Session tracking
+
+From main.js:443, starred cards are tracked per session using the `timesViewed` counter:
+
+```javascript
+function getStarredCardsFromCurrentSession() {
+  var starredCards = [];
+  
+  for (var i = 0; i < deck.cards.length; i++) {
+    var card = deck.cards[i];
+    if (card.starred === true && card.timesViewed > 0) {
+      var levelMatch = (currentLevel === "all" || card.level === currentLevel);
+      if (levelMatch) {
+        starredCards.push(card);
+      }
+    }
+  }
+  
+  return starredCards;
+}
+```
+
+This ensures you only review starred cards that actually appeared in your current study session.

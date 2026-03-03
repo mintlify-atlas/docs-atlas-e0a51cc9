@@ -1,0 +1,179 @@
+---
+title: Converting to Anki format
+description: Export your KAnki decks to Anki's .apkg format for use with desktop and mobile Anki applications
+---
+
+While KAnki is designed for Kindle devices, you may want to use your decks on desktop or mobile Anki applications. The KankiToAnki converter enables this workflow.
+
+## KankiToAnki converter
+
+KankiToAnki is a tool that converts KAnki configuration files to Anki's `.apkg` package format.
+
+**Available at:**
+- GitHub: [github.com/crizmo/KankiToAnki](https://github.com/crizmo/KankiToAnki)
+- Web app: [kankitoanki.vercel.app](https://kankitoanki.vercel.app/)
+
+## Converting KAnki to Anki
+
+Use this when you want to study your KAnki decks on desktop, mobile, or web versions of Anki.
+
+<Steps>
+  <Step title="Export your KAnki configuration">
+    Connect your Kindle to your computer and copy:
+    ```
+    /documents/kanki/js/kanki_config.js
+    ```
+  </Step>
+  
+  <Step title="Open the converter">
+    Visit [kankitoanki.vercel.app](https://kankitoanki.vercel.app/) or run the tool locally.
+  </Step>
+  
+  <Step title="Upload configuration">
+    Select your `kanki_config.js` file in the converter interface.
+  </Step>
+  
+  <Step title="Convert to .apkg">
+    Click convert to generate an Anki package file.
+  </Step>
+  
+  <Step title="Import to Anki">
+    Open Anki on your desktop or mobile device and import the generated `.apkg` file.
+  </Step>
+</Steps>
+
+## Workflow: Anki to KAnki
+
+The recommended workflow for bringing Anki decks to Kindle involves using Üben as an intermediary:
+
+<Steps>
+  <Step title="Find or create Anki deck">
+    Download a shared deck from AnkiWeb or export your own deck as `.apkg`.
+  </Step>
+  
+  <Step title="Import to Üben">
+    Upload the `.apkg` file to [Üben](https://www.uben.online/).
+  </Step>
+  
+  <Step title="Edit if needed">
+    Use Üben's interface to customize cards, add notes, or adjust proficiency levels.
+  </Step>
+  
+  <Step title="Export to KAnki format">
+    Generate a `kanki_config.js` file from Üben.
+  </Step>
+  
+  <Step title="Transfer to Kindle">
+    Copy the configuration file to your Kindle's `/documents/kanki/js/` directory.
+  </Step>
+</Steps>
+
+<Info>
+  This workflow is preferred over direct conversion because Üben provides a better interface for adjusting cards to work well on Kindle's e-ink display and limited browser capabilities.
+</Info>
+
+## Understanding format differences
+
+### KAnki format
+KAnki uses a simple JavaScript configuration:
+
+```javascript
+var KANKI_CONFIG = {
+  language: "Japanese",
+  levels: ["N5", "N4", "N3"]
+};
+
+var VOCABULARY = {
+  "N5": [
+    {
+      "front": "こんにちは",
+      "reading": "konnichiwa",
+      "back": "Hello",
+      "notes": "Common greeting"
+    }
+  ]
+};
+```
+
+### Anki format
+Anki uses `.apkg` files which are SQLite databases containing:
+- Card data with scheduling information
+- Media files (audio, images)
+- Note types and templates
+- Deck configurations
+
+## Limitations
+
+<Warning>
+  When converting between formats, some features may not transfer:
+</Warning>
+
+### KAnki to Anki limitations
+- **Progress data not included**: The converter only exports card content, not your study history or statistics from localStorage
+- **Starred cards**: Star status doesn't map to Anki's tagging system automatically
+- **KAnki-specific features**: Error review mode and per-card view counts are KAnki-only
+
+### Anki to KAnki limitations
+- **Media files**: Images and audio in Anki cards won't work on Kindle
+- **Complex formatting**: HTML formatting in Anki cards may not render correctly
+- **Card types**: Cloze deletions and complex note types must be simplified
+- **Scheduling**: Anki's spaced repetition schedule doesn't transfer to KAnki
+
+## Alternative: Parallel study
+
+Instead of converting, you can maintain the same deck in both apps:
+
+<Accordion title="Why use both?">
+  **Anki advantages:**
+  - Richer media support (audio, images)
+  - More advanced spaced repetition
+  - Mobile apps with better performance
+  - Community add-ons and plugins
+  
+  **KAnki advantages:**
+  - Perfect for distraction-free reading sessions
+  - E-ink display is easier on eyes for long study sessions
+  - Exceptional battery life
+  - Portable reading device you already carry
+</Accordion>
+
+To maintain parallel decks:
+
+1. Create your master deck in Anki
+2. Export to `.apkg` when you make changes
+3. Import to Üben
+4. Export from Üben to KAnki format
+5. Transfer updated `kanki_config.js` to Kindle
+
+<Info>
+  Your progress in each app will be tracked independently. This is often desirable since your study patterns may differ between devices.
+</Info>
+
+## Exporting progress data
+
+If you want to manually analyze your KAnki progress:
+
+<Steps>
+  <Step title="Back up localStorage">
+    Copy the file from:
+    ```
+    /Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+    ```
+  </Step>
+  
+  <Step title="Extract JSON data">
+    The localStorage file contains JSON-encoded deck data. You can parse it programmatically to extract:
+    - Card difficulty levels
+    - Review history with timestamps
+    - Success/failure rates per card
+    - View counts and patterns
+  </Step>
+  
+  <Step title="Analyze externally">
+    Use the extracted data for custom analysis or import into other spaced repetition systems that accept JSON.
+  </Step>
+</Steps>
+
+<Warning>
+  There's no automated tool to import KAnki progress data into Anki's scheduling system. This would require custom scripting to map KAnki's difficulty levels to Anki's ease factors and interval calculations.
+</Warning>

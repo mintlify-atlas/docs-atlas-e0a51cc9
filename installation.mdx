@@ -1,0 +1,224 @@
+---
+title: Installation
+description: Complete guide to installing KAnki on your jailbroken Kindle device
+---
+
+# Installation
+
+This guide walks you through installing KAnki on your jailbroken Kindle device.
+
+<Warning>
+KAnki requires a jailbroken Kindle device with filesystem access. Make sure your Kindle is jailbroken before proceeding. KAnki is not compatible with standard, non-jailbroken Kindle devices.
+</Warning>
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- **A jailbroken Kindle device** with filesystem access
+- **USB cable** to connect your Kindle to a computer
+- **KAnki files** - download from the repository or as a ZIP file
+- **Language font file** (TTF format) if you're studying non-Latin scripts
+
+## Installation steps
+
+<Steps>
+  <Step title="Download KAnki">
+    Clone the repository or download it as a ZIP file from GitHub.
+    
+    ```bash
+    git clone https://github.com/yourusername/kanki.git
+    ```
+    
+    Or download the ZIP and extract it to a folder named `kanki`.
+    
+    <Note>
+    Make sure the extracted folder is named exactly `kanki` (lowercase) for the installation script to work correctly.
+    </Note>
+  </Step>
+
+  <Step title="Connect your Kindle">
+    Connect your Kindle device to your computer via USB cable. Your Kindle should appear as a removable drive.
+  </Step>
+
+  <Step title="Copy files to Kindle">
+    Copy both the `kanki` folder and the `kanki.sh` script to the `documents` folder on your Kindle.
+    
+    Your directory structure should look like:
+    
+    ```
+    /documents/
+    ├── kanki/
+    │   ├── config.xml
+    │   ├── index.html
+    │   ├── main.css
+    │   ├── main.js
+    │   ├── responsive.css
+    │   ├── assets/
+    │   │   └── fonts/
+    │   │       └── language.ttf
+    │   └── js/
+    │       ├── kanki_config.js
+    │       ├── polyfill.min.js
+    │       └── sdk.js
+    └── kanki.sh
+    ```
+  </Step>
+
+  <Step title="Add language font">
+    Download or convert a TTF font file that supports your target language. 
+    
+    Rename the font file to `language.ttf` and place it in:
+    
+    ```
+    kanki/assets/fonts/language.ttf
+    ```
+    
+    <Info>
+    For languages using Latin script (Spanish, French, German, etc.), you may be able to use system fonts. For languages with special characters (Japanese, Chinese, Korean, Arabic, etc.), you must provide a font that supports those characters.
+    </Info>
+    
+    **Recommended fonts:**
+    - **Japanese:** Noto Sans CJK JP
+    - **Chinese:** Noto Sans CJK SC
+    - **Korean:** Noto Sans CJK KR
+    - **Arabic:** Noto Sans Arabic
+  </Step>
+
+  <Step title="Configure your language">
+    Open `kanki/js/kanki_config.js` in a text editor and customize it for your target language.
+    
+    Example configuration for Spanish:
+    
+    ```javascript kanki/js/kanki_config.js
+    var KANKI_CONFIG = {
+      language: "Spanish",
+      levels: ["A1", "A2", "B1", "B2"]
+    };
+    
+    var VOCABULARY = {
+      "A1": [
+        {"front": "hello", "back": "hola", "notes": "Greeting"},
+        {"front": "goodbye", "back": "adiós", "notes": "Parting"},
+        {"front": "please", "back": "por favor", "notes": "Courtesy"}
+      ],
+      "A2": [
+        {"front": "tomorrow", "back": "mañana", "notes": "Time"},
+        {"front": "yesterday", "back": "ayer", "notes": "Time"}
+      ]
+    };
+    ```
+    
+    For languages with different writing systems, use the `reading` property:
+    
+    ```javascript
+    {"front": "こんにちは", "reading": "konnichiwa", "back": "Hello", "notes": "Greeting"}
+    ```
+    
+    <Note>
+    See the [Configuration guide](/configuration/language-setup) for detailed instructions on customizing vocabulary and proficiency levels.
+    </Note>
+  </Step>
+
+  <Step title="Safely disconnect Kindle">
+    Safely eject your Kindle from your computer before disconnecting the USB cable.
+  </Step>
+
+  <Step title="Launch KAnki">
+    On your Kindle's home screen, open KAnki by running the application. The `kanki.sh` script will:
+    
+    1. Copy the kanki folder to `/var/local/mesquite/kanki`
+    2. Register the app with the Kindle's application database
+    3. Launch KAnki automatically
+    
+    <Info>
+    The installation script uses `lipc-set-prop` to launch the app. You should see "Registered xyz.kurizu.kanki, You May Now Launch It With LIPC" before the app opens.
+    </Info>
+  </Step>
+</Steps>
+
+## What the installation script does
+
+The `kanki.sh` script automates the installation process:
+
+```bash kanki.sh
+#!/bin/sh
+SOURCE_DIR="/mnt/us/documents/kanki"
+TARGET_DIR="/var/local/mesquite/kanki"
+DB="/var/local/appreg.db"
+APP_ID="xyz.kurizu.kanki"
+
+# Copy to /var/local/mesquite
+if [ -d "$SOURCE_DIR" ]; then
+    if [ -d "$TARGET_DIR" ]; then
+        rm -rf "$TARGET_DIR"
+    fi
+    cp -r "$SOURCE_DIR" "$TARGET_DIR"
+fi
+
+# Register in application database
+sqlite3 "$DB" <<EOF
+INSERT OR IGNORE INTO interfaces(interface) VALUES('application');
+INSERT OR IGNORE INTO handlerIds(handlerId) VALUES('$APP_ID');
+INSERT OR REPLACE INTO properties(handlerId,name,value) 
+  VALUES('$APP_ID','command','/usr/bin/mesquite -l $APP_ID -c file://$TARGET_DIR/');
+EOF
+
+# Launch with LIPC
+lipc-set-prop com.lab126.appmgrd start app://$APP_ID
+```
+
+<Info>
+The script registers KAnki as `xyz.kurizu.kanki` in the Kindle's application registry and configures it to launch via the Mesquite browser engine.
+</Info>
+
+## Verification
+
+After installation, you should see:
+
+1. **KAnki home screen** with the title and menu buttons
+2. **Level buttons** showing your configured proficiency levels (e.g., N5, N4)
+3. **Your first flashcard** displaying the front text
+4. **Show Answer button** at the bottom
+
+If KAnki launches successfully, you're ready to start learning!
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="KAnki doesn't launch after running kanki.sh">
+    - Verify your Kindle is properly jailbroken
+    - Check that the kanki folder is in `/documents/` (not in a subfolder)
+    - Ensure the folder is named exactly `kanki` (lowercase)
+    - Try restarting your Kindle and running `kanki.sh` again
+  </Accordion>
+  
+  <Accordion title="Characters display as boxes or question marks">
+    - Make sure you've added a `language.ttf` font file that supports your target language
+    - Verify the font file is in `kanki/assets/fonts/language.ttf`
+    - Try a different font file (Noto Sans fonts are recommended)
+  </Accordion>
+  
+  <Accordion title="No vocabulary cards appear">
+    - Check that `kanki_config.js` contains valid JavaScript syntax
+    - Ensure the `levels` array in `KANKI_CONFIG` matches the keys in your `VOCABULARY` object
+    - Verify you have at least one card in at least one level
+  </Accordion>
+  
+  <Accordion title="App crashes or freezes">
+    - Delete the localStorage file to reset all data:
+      ```
+      /Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+      ```
+    - Or use the "Reset All Data" button within the app
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+Now that KAnki is installed, you can:
+
+- Follow the [Quick start guide](/quickstart) to learn the basics
+- Explore [Configuration options](/configuration/language-setup) to customize your deck
+- Learn about [Deck management](/configuration/deck-management) to create better flashcards
+- Join the [Discord community](https://discord.gg/JtcrpG7ECA) for support and tips
